@@ -1,5 +1,7 @@
 package com.hex.core;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -231,6 +233,37 @@ public class Game implements Runnable, Serializable {
         this.gameOver = gameOver;
     }
 
+    public static Game load(File file) throws ClassNotFoundException, IOException {
+        // Construct the ObjectInputStream object
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+
+        int gridSize = (Integer) inputStream.readObject();
+        boolean swap = (Boolean) inputStream.readObject();
+        GameOptions go = new GameOptions();
+        go.gridSize = gridSize;
+        go.swap = swap;
+        Game game = new Game(go, new PlayerObject(1), new PlayerObject(2));
+
+        inputStream.readObject(); // These load player type
+        inputStream.readObject(); // which isnt used
+        game.getPlayer1().setColor((Integer) inputStream.readObject());
+        game.getPlayer2().setColor((Integer) inputStream.readObject());
+        game.getPlayer1().setName((String) inputStream.readObject());
+        game.getPlayer2().setName((String) inputStream.readObject());
+        game.setMoveList((MoveList) inputStream.readObject());
+        game.setMoveNumber((Integer) inputStream.readObject());
+        int timertype = (Integer) inputStream.readObject();
+        long timerlength = (Long) inputStream.readObject();
+        game.gameOptions.timer = new Timer(timerlength, 0, timertype);
+
+        inputStream.close();
+
+        game.currentPlayer = ((game.getMoveNumber() + 1) % 2) + 1;
+        game.replayRunning = false;
+
+        return game;
+    }
+
     public static class GameOptions implements Serializable {
         private static final long serialVersionUID = 1L;
         public Timer timer;
@@ -250,7 +283,9 @@ public class Game implements Runnable, Serializable {
 
         public void onTurn(PlayingEntity player);
 
-        public void onReplay();
+        public void onReplayStart();
+
+        public void onReplayEnd();
 
         public void onTeamSet();
 
