@@ -2,7 +2,6 @@ package com.hex.core;
 
 import java.io.Serializable;
 
-
 /**
  * @author Will Harmon
  **/
@@ -17,7 +16,7 @@ public class Timer implements Serializable {
     public int type;
     public long totalTime;
     public long additionalTime;
-    private int currentPlayer;
+    private PlayingEntity currentPlayer;
 
     public Timer(long totalTime, long additionalTime, int type) {
         this.totalTime = totalTime * 60 * 1000;
@@ -29,7 +28,7 @@ public class Timer implements Serializable {
     public void start(final Game game) {
         refresh = true;
         if(type != 0) {
-            game.gameListener.startTimer();
+            if(game.getGameListener() != null) game.getGameListener().startTimer();
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -47,17 +46,17 @@ public class Timer implements Serializable {
     public void run(Game game) {
         while(refresh) {
             elapsedTime = System.currentTimeMillis() - startTime;
-            currentPlayer = game.currentPlayer;
+            currentPlayer = game.getCurrentPlayer();
 
-            if(!game.gameOver) {
-                GameAction.getPlayer(currentPlayer, game).setTime(calculatePlayerTime(currentPlayer, game));
-                if(GameAction.getPlayer(currentPlayer, game).getTime() > 0) {
+            if(!game.isGameOver()) {
+                currentPlayer.setTime(calculatePlayerTime(currentPlayer, game));
+                if(currentPlayer.getTime() > 0) {
                     displayTime(game);
                 }
                 else {
-                    PlayingEntity player = GameAction.getPlayer(currentPlayer, game);
+                    PlayingEntity player = currentPlayer;
                     player.endMove();
-                    game.gameListener.onTurn(player);
+                    if(game.getGameListener() != null) game.getGameListener().onTurn(player);
                 }
             }
 
@@ -70,15 +69,15 @@ public class Timer implements Serializable {
         }
     }
 
-    private long calculatePlayerTime(int player, Game game) {
-        return totalTime - elapsedTime + totalTime - GameAction.getPlayer(player % 2 + 1, game).getTime();
+    private long calculatePlayerTime(PlayingEntity player, Game game) {
+        return totalTime - elapsedTime + totalTime - GameAction.getPlayer(player.getTeam() % 2 + 1, game).getTime();
     }
 
     private void displayTime(Game game) {
-        long millis = GameAction.getPlayer(game.currentPlayer, game).getTime();
+        long millis = game.getCurrentPlayer().getTime();
         int seconds = (int) (millis / 1000);
         int minutes = seconds / 60;
         seconds = seconds % 60;
-        game.gameListener.displayTime(minutes, seconds);
+        if(game.getGameListener() != null) game.getGameListener().displayTime(minutes, seconds);
     }
 }
