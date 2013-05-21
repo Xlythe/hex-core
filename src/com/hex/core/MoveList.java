@@ -48,6 +48,6 @@ public class MoveList implements Serializable {
             e.printStackTrace();
         }
         game.gamePiece[thisMove.getX()][thisMove.getY()].setTeam(thisMove.getTeam(), game);
-        if(game.getGameListener() != null) game.getGameListener().onReplay();
+        if(game.getGameListener() != null) game.getGameListener().onTurn(null);
     }
 }
