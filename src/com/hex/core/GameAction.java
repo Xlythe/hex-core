@@ -18,7 +18,7 @@ public class GameAction {
                 if(RegularPolygonGameObject.checkWinTeam((byte) 1, game.gameOptions.gridSize, i, game.gamePiece)) {
                     System.out.println("Player one wins");
                     checkedFlagReset(game);
-                    RegularPolygonGameObject.markWinningPath((byte) 2,game.gameOptions.gridSize,i,game);
+                    RegularPolygonGameObject.markWinningPath((byte) 1, game.gameOptions.gridSize, i, game);
                     return true;
                 }
             }
@@ -31,7 +31,7 @@ public class GameAction {
                 if(RegularPolygonGameObject.checkWinTeam((byte) 2, i, game.gameOptions.gridSize, game.gamePiece)) {
                     System.out.println("Player two wins");
                     checkedFlagReset(game);
-                    RegularPolygonGameObject.markWinningPath((byte) 2,game.gameOptions.gridSize,i,game); 
+                    RegularPolygonGameObject.markWinningPath((byte) 2, game.gameOptions.gridSize, i, game);
                     return true;
                 }
             }

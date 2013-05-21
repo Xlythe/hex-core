@@ -7,7 +7,7 @@ public class RegularPolygonGameObject implements Serializable {
     private RegularPolygon hex;
     private byte teamNumber = 0; // 1 is left-right, 2 is top-down
     private boolean winningPath;
-    
+
     boolean checkedflage = false;
     double x;
     double y;
@@ -105,10 +105,10 @@ public class RegularPolygonGameObject implements Serializable {
 
     // used for checking victory condition
     public static void markWinningPath(byte team, int x, int y, Game game) {
-    	String path = findShortestPath(team,x,y,game.gamePiece);
-    	colorPath(x,y,path,game);
+        String path = findShortestPath(team, x, y, game.gamePiece);
+        colorPath(x, y, path, game);
     }
-    
+
     public static String findShortestPath(byte team, int x, int y, RegularPolygonGameObject[][] gamePeace) {
         if(checkSpot(team, x, y)) {
             return "";
@@ -183,37 +183,53 @@ public class RegularPolygonGameObject implements Serializable {
     public boolean contains(double x, double y) {
         return hex.contains((int) x, (int) y);
     }
-	private enum posDir{
-		lx,rx,uy,dy,dd,ud
-		
-	}
-public static void colorPath(int x,int y, String path,Game game){
-		
-		while (path!=null&&!path.isEmpty()){
-				 
-			//System.out.println("test");
-			//System.out.println(path);
-				switch (posDir.valueOf(path.substring(0,2))){
-				 //ud=y-1 & x+1  dd = y+1 & x-1  uy=y-1 dy=y+1 lx=x-1 rx=x+1
-			     case lx: x-=1; break;
-			     case rx: x+=1;break;
-			     case uy: y-=1;break;
-			     case dy: y+=1;break;
-			     case dd:  y+=1; x-=1;break;
-			     case ud:  y-=1; x+=1; break;
-				 }
-				//System.out.println(path);
-				game.gamePiece[x][y].setWinningPath(true);
-				path=path.substring(2,path.length());
-		} System.out.print("done");
-	}
 
-	public boolean isWinningPath() {
-		return winningPath;
-	}
+    private enum posDir {
+        lx, rx, uy, dy, dd, ud
 
-	public void setWinningPath(boolean winningPath) {
-		this.winningPath = winningPath;
-	}
+    }
+
+    public static void colorPath(int x, int y, String path, Game game) {
+
+        while(path != null && !path.isEmpty()) {
+
+            // System.out.println("test");
+            // System.out.println(path);
+            switch(posDir.valueOf(path.substring(0, 2))) {
+            // ud=y-1 & x+1 dd = y+1 & x-1 uy=y-1 dy=y+1 lx=x-1 rx=x+1
+            case lx:
+                x -= 1;
+                break;
+            case rx:
+                x += 1;
+                break;
+            case uy:
+                y -= 1;
+                break;
+            case dy:
+                y += 1;
+                break;
+            case dd:
+                y += 1;
+                x -= 1;
+                break;
+            case ud:
+                y -= 1;
+                x += 1;
+                break;
+            }
+            // System.out.println(path);
+            game.gamePiece[x][y].setWinningPath(true);
+            path = path.substring(2, path.length());
+        }
+    }
+
+    public boolean isWinningPath() {
+        return winningPath;
+    }
+
+    public void setWinningPath(boolean winningPath) {
+        this.winningPath = winningPath;
+    }
 
 }
