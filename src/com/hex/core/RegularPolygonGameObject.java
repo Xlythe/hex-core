@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class RegularPolygonGameObject implements Serializable {
     private static final long serialVersionUID = 1L;
-    private RegularPolygon Hex;
+    private RegularPolygon hex;
     private byte teamNumber = 0; // 1 is left-right, 2 is top-down
     private boolean winningPath;
     
@@ -33,15 +33,15 @@ public class RegularPolygonGameObject implements Serializable {
     }
 
     public RegularPolygonGameObject(double x, double y, double r, int vertexCount) {
-        Hex = new RegularPolygon(x, y, r, vertexCount);
+        hex = new RegularPolygon(x, y, r, vertexCount);
     }
 
     public RegularPolygonGameObject(double x, double y, double r, int vertexCount, double startAngle) {
-        Hex = new RegularPolygon(x, y, r, vertexCount, startAngle);
+        hex = new RegularPolygon(x, y, r, vertexCount, startAngle);
     }
 
     public void update(double x, double y, double r, int vertexCount, double startAngle) {
-        Hex = new RegularPolygon(x, y, r, vertexCount, startAngle);
+        hex = new RegularPolygon(x, y, r, vertexCount, startAngle);
     }
 
     public void setTeam(byte t, Game game) {
@@ -162,14 +162,12 @@ public class RegularPolygonGameObject implements Serializable {
         }
         int temp = findShortestString(paths, lo + 1, hi);
         return stringL(paths[lo]) < stringL(paths[temp]) ? lo : temp;
-
     }
 
     // used for checking victory condition
     private static int stringL(String temp) {
         if(temp == null) return Integer.MAX_VALUE;
         else return temp.length();
-
     }
 
     public static boolean checkSpot(byte team, int x, int y) {
@@ -183,7 +181,7 @@ public class RegularPolygonGameObject implements Serializable {
     }
 
     public boolean contains(double x, double y) {
-        return Hex.contains((int) x, (int) y);
+        return hex.contains((int) x, (int) y);
     }
 	private enum posDir{
 		lx,rx,uy,dy,dd,ud
