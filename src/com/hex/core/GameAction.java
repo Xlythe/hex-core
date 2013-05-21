@@ -15,11 +15,11 @@ public class GameAction {
             if(game.gameOptions.timer.type != 0 && game.getPlayer2().getTime() < 0) return true;
             if(game.getPlayer2().giveUp()) return true;
             for(int i = 0; i < game.gameOptions.gridSize; i++) {
-                if(RegularPolygonGameObject.checkWinTeam((byte) 1, game.gameOptions.gridSize, i, game.gamePiece)) {
+                if(GamePiece.checkWinTeam((byte) 1, game.gameOptions.gridSize, i, game.gamePiece)) {
                     System.out.println("Player one wins");
                     checkedFlagReset(game);
 
-                    RegularPolygonGameObject.markWinningPath((byte) 1,game.gameOptions.gridSize,i,game);
+                    GamePiece.markWinningPath((byte) 1,game.gameOptions.gridSize,i,game);
 
                     return true;
                 }
@@ -30,10 +30,10 @@ public class GameAction {
             if(game.gameOptions.timer.type != 0 && game.getPlayer1().getTime() < 0) return true;
             if(game.getPlayer1().giveUp()) return true;
             for(int i = 0; i < game.gameOptions.gridSize; i++) {
-                if(RegularPolygonGameObject.checkWinTeam((byte) 2, i, game.gameOptions.gridSize, game.gamePiece)) {
+                if(GamePiece.checkWinTeam((byte) 2, i, game.gameOptions.gridSize, game.gamePiece)) {
                     System.out.println("Player two wins");
                     checkedFlagReset(game);
-                    RegularPolygonGameObject.markWinningPath((byte) 2, game.gameOptions.gridSize, i, game);
+                    GamePiece.markWinningPath((byte) 2, game.gameOptions.gridSize, i, game);
                     return true;
                 }
             }

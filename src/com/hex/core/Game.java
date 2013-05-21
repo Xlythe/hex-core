@@ -12,7 +12,7 @@ import com.hex.core.Game.GameOptions;
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
     private boolean gameRunning = true;
-    public final RegularPolygonGameObject[][] gamePiece;
+    public final GamePiece[][] gamePiece;
     private int moveNumber;
     private MoveList moveList;
     private int currentPlayer;
@@ -31,10 +31,10 @@ public class Game implements Runnable, Serializable {
         this.player1 = player1;
         this.player2 = player2;
 
-        gamePiece = new RegularPolygonGameObject[gameOptions.gridSize][gameOptions.gridSize];
+        gamePiece = new GamePiece[gameOptions.gridSize][gameOptions.gridSize];
         for(int i = 0; i < gameOptions.gridSize; i++) {
             for(int j = 0; j < gameOptions.gridSize; j++) {
-                gamePiece[i][j] = new RegularPolygonGameObject();
+                gamePiece[i][j] = new GamePiece();
             }
         }
 
@@ -163,7 +163,7 @@ public class Game implements Runnable, Serializable {
     public void clearBoard() {
         for(int i = 0; i < gameOptions.gridSize; i++) {
             for(int j = 0; j < gameOptions.gridSize; j++) {
-                gamePiece[i][j] = new RegularPolygonGameObject();
+                gamePiece[i][j] = new GamePiece();
             }
         }
         gameListener.onClear();
