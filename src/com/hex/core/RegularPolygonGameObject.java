@@ -192,9 +192,6 @@ public class RegularPolygonGameObject implements Serializable {
     public static void colorPath(int x, int y, String path, Game game) {
 
         while(path != null && !path.isEmpty()) {
-
-            // System.out.println("test");
-            // System.out.println(path);
             switch(posDir.valueOf(path.substring(0, 2))) {
             // ud=y-1 & x+1 dd = y+1 & x-1 uy=y-1 dy=y+1 lx=x-1 rx=x+1
             case lx:
@@ -218,7 +215,6 @@ public class RegularPolygonGameObject implements Serializable {
                 x += 1;
                 break;
             }
-            // System.out.println(path);
             game.gamePiece[x][y].setWinningPath(true);
             path = path.substring(2, path.length());
         }
