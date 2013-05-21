@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import com.hex.core.Game.GameOptions;
+
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
     private boolean gameRunning = true;
@@ -40,7 +42,12 @@ public class Game implements Runnable, Serializable {
         gameOver = false;
     }
 
-    private void writeObject(ObjectOutputStream outputStream) throws IOException {
+    public Game(GameOptions options, PlayerObject player12,
+			PlayerObject player22) {
+		// TODO Auto-generated constructor stub
+	}
+
+	private void writeObject(ObjectOutputStream outputStream) throws IOException {
         outputStream.writeObject(gameOptions.gridSize);
         outputStream.writeObject(gameOptions.swap);
         outputStream.writeObject(player1Type);
@@ -168,6 +175,7 @@ public class Game implements Runnable, Serializable {
         public Timer timer;
         public int gridSize;
         public boolean swap;
+
     }
 
     public static interface GameListener {

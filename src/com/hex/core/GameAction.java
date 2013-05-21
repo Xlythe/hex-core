@@ -18,7 +18,9 @@ public class GameAction {
                 if(RegularPolygonGameObject.checkWinTeam((byte) 1, game.gameOptions.gridSize, i, game.gamePiece)) {
                     System.out.println("Player one wins");
                     checkedFlagReset(game);
-                    RegularPolygonGameObject.markWinningPath((byte) 1, game.gameOptions.gridSize, i, game);
+
+                    RegularPolygonGameObject.markWinningPath((byte) 1,game.gameOptions.gridSize,i,game);
+
                     return true;
                 }
             }

@@ -12,6 +12,8 @@ public class PlayerObject implements PlayingEntity {
     private long timeLeft;
     public final int team;
     private final LinkedList<Point> hex = new LinkedList<Point>();
+	public int player1Type;
+	public int player2Type;
 
     public PlayerObject(int team) {
         this.team = team;
