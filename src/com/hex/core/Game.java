@@ -43,10 +43,6 @@ public class Game implements Runnable, Serializable {
         setGameOver(false);
     }
 
-    public Game(GameOptions options, PlayerObject player12,
-			PlayerObject player22) {
-		// TODO Auto-generated constructor stub
-	}
 
 	private void writeObject(ObjectOutputStream outputStream) throws IOException {
         outputStream.writeObject(gameOptions.gridSize);
