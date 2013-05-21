@@ -11,22 +11,23 @@ public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
     private boolean gameRunning = true;
     public final RegularPolygonGameObject[][] gamePiece;
-    public int moveNumber;
-    public MoveList moveList;
-    public int currentPlayer;
-    public boolean gameOver = false;
-    public PlayingEntity player1;
-    public PlayingEntity player2;
-    public int player1Type;
-    public int player2Type;
-    public long moveStart;
+    private int moveNumber;
+    private MoveList moveList;
+    private int currentPlayer;
+    private boolean gameOver = false;
+    private PlayingEntity player1;
+    private PlayingEntity player2;
+    private int player1Type;
+    private int player2Type;
+    private long moveStart;
     public boolean replayRunning = false;
-    public transient GameListener gameListener;
+    private transient GameListener gameListener;
     public GameOptions gameOptions;
 
-    public Game(GameOptions gameOptions, GameListener gameListener) {
+    public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
-        this.gameListener = gameListener;
+        this.player1 = player1;
+        this.player2 = player2;
 
         gamePiece = new RegularPolygonGameObject[gameOptions.gridSize][gameOptions.gridSize];
         for(int i = 0; i < gameOptions.gridSize; i++) {
@@ -35,11 +36,11 @@ public class Game implements Runnable, Serializable {
             }
         }
 
-        moveNumber = 1;
-        moveList = new MoveList();
+        setMoveNumber(1);
+        setMoveList(new MoveList());
         currentPlayer = 1;
         gameRunning = true;
-        gameOver = false;
+        setGameOver(false);
     }
 
     public Game(GameOptions options, PlayerObject player12,
@@ -52,12 +53,12 @@ public class Game implements Runnable, Serializable {
         outputStream.writeObject(gameOptions.swap);
         outputStream.writeObject(player1Type);
         outputStream.writeObject(player2Type);
-        outputStream.writeObject(player1.getColor());
-        outputStream.writeObject(player2.getColor());
-        outputStream.writeObject(player1.getName());
-        outputStream.writeObject(player2.getName());
-        outputStream.writeObject(moveList);
-        outputStream.writeObject(moveNumber);
+        outputStream.writeObject(getPlayer1().getColor());
+        outputStream.writeObject(getPlayer2().getColor());
+        outputStream.writeObject(getPlayer1().getName());
+        outputStream.writeObject(getPlayer2().getName());
+        outputStream.writeObject(getMoveList());
+        outputStream.writeObject(getMoveNumber());
         outputStream.writeObject(0);// Timer type
         outputStream.writeObject((gameOptions.timer.totalTime / 60) / 1000);
     }
@@ -69,24 +70,24 @@ public class Game implements Runnable, Serializable {
         go.gridSize = gridSize;
         go.swap = swap;
 
-        player1 = new PlayerObject(1);
-        player2 = new PlayerObject(2);
+        setPlayer1(new PlayerObject(1));
+        setPlayer2(new PlayerObject(2));
 
         player1Type = (Integer) inputStream.readObject();
         player2Type = (Integer) inputStream.readObject();
-        player1.setColor((Integer) inputStream.readObject());
-        player2.setColor((Integer) inputStream.readObject());
-        player1.setName((String) inputStream.readObject());
-        player2.setName((String) inputStream.readObject());
-        moveList = (MoveList) inputStream.readObject();
-        moveNumber = (Integer) inputStream.readObject();
+        getPlayer1().setColor((Integer) inputStream.readObject());
+        getPlayer2().setColor((Integer) inputStream.readObject());
+        getPlayer1().setName((String) inputStream.readObject());
+        getPlayer2().setName((String) inputStream.readObject());
+        setMoveList((MoveList) inputStream.readObject());
+        setMoveNumber((Integer) inputStream.readObject());
         int timertype = (Integer) inputStream.readObject();
         long timerlength = (Long) inputStream.readObject();
         gameOptions.timer = new Timer(timerlength, 0, timertype);
 
         inputStream.close();
 
-        currentPlayer = ((moveNumber + 1) % 2) + 1;
+        currentPlayer = ((getMoveNumber() + 1) % 2) + 1;
         replayRunning = false;
 
         // Does not support saving PlayingEntities yet
@@ -95,22 +96,22 @@ public class Game implements Runnable, Serializable {
     }
 
     public void start() {
-        gameListener.onStart();
-        gameOver = false;
+        if(getGameListener() != null) getGameListener().onStart();
+        setGameOver(false);
         gameRunning = true;
-        player1.setTime(gameOptions.timer.totalTime);
-        player2.setTime(gameOptions.timer.totalTime);
+        getPlayer1().setTime(gameOptions.timer.totalTime);
+        getPlayer2().setTime(gameOptions.timer.totalTime);
         gameOptions.timer.start(this);
         new Thread(this, "runningGame").start();
     }
 
     public void stop() {
-        gameListener.onStop();
+        if(getGameListener() != null) getGameListener().onStop();
         gameRunning = false;
         gameOptions.timer.stop();
-        player1.quit();
-        player2.quit();
-        gameOver = true;
+        getPlayer1().quit();
+        getPlayer2().quit();
+        setGameOver(true);
     }
 
     @Override
@@ -118,11 +119,11 @@ public class Game implements Runnable, Serializable {
         PlayingEntity player;
 
         // Loop the game
-        gameListener.onTurn(player1);
+        if(getGameListener() != null) getGameListener().onTurn(getPlayer1());
         while(gameRunning) {
             if(!checkForWinner()) {
-                moveStart = System.currentTimeMillis();
-                player = GameAction.getPlayer(currentPlayer, this);
+                setMoveStart(System.currentTimeMillis());
+                player = getCurrentPlayer();
 
                 // Let the player make its move
                 player.getPlayerTurn(this);
@@ -134,10 +135,10 @@ public class Game implements Runnable, Serializable {
                 }
                 player.setTime(player.getTime() + gameOptions.timer.additionalTime);
 
-                gameListener.onTurn(player);
+                if(getGameListener() != null) getGameListener().onTurn(player);
             }
 
-            currentPlayer = (currentPlayer % 2) + 1;
+            incrementCurrentPlayer();
         }
     }
 
@@ -145,20 +146,20 @@ public class Game implements Runnable, Serializable {
         GameAction.checkedFlagReset(this);
         if(GameAction.checkWinPlayer(1, this)) {
             gameRunning = false;
-            gameOver = true;
-            player1.win();
-            player2.lose();
-            gameListener.onWin(player1);
+            setGameOver(true);
+            getPlayer1().win();
+            getPlayer2().lose();
+            gameListener.onWin(getPlayer1());
         }
         else if(GameAction.checkWinPlayer(2, this)) {
             gameRunning = false;
-            gameOver = true;
-            player1.lose();
-            player2.win();
-            gameListener.onWin(player2);
+            setGameOver(true);
+            getPlayer1().lose();
+            getPlayer2().win();
+            gameListener.onWin(getPlayer2());
         }
 
-        return gameOver;
+        return isGameOver();
     }
 
     public void clearBoard() {
@@ -168,6 +169,70 @@ public class Game implements Runnable, Serializable {
             }
         }
         gameListener.onClear();
+    }
+
+    protected void incrementCurrentPlayer() {
+        currentPlayer = (currentPlayer % 2) + 1;
+    }
+
+    public void setGameListener(GameListener gameListener) {
+        this.gameListener = gameListener;
+    }
+
+    public GameListener getGameListener() {
+        return gameListener;
+    }
+
+    public PlayingEntity getCurrentPlayer() {
+        return GameAction.getPlayer(currentPlayer, this);
+    }
+
+    public MoveList getMoveList() {
+        return moveList;
+    }
+
+    void setMoveList(MoveList moveList) {
+        this.moveList = moveList;
+    }
+
+    public long getMoveStart() {
+        return moveStart;
+    }
+
+    private void setMoveStart(long moveStart) {
+        this.moveStart = moveStart;
+    }
+
+    public PlayingEntity getPlayer1() {
+        return player1;
+    }
+
+    private void setPlayer1(PlayingEntity player1) {
+        this.player1 = player1;
+    }
+
+    public PlayingEntity getPlayer2() {
+        return player2;
+    }
+
+    private void setPlayer2(PlayingEntity player2) {
+        this.player2 = player2;
+    }
+
+    public int getMoveNumber() {
+        return moveNumber;
+    }
+
+    public void setMoveNumber(int moveNumber) {
+        this.moveNumber = moveNumber;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    private void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     public static class GameOptions implements Serializable {

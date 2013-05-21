@@ -129,6 +129,11 @@ public interface PlayingEntity extends Serializable {
     public byte getTeam();
 
     /**
+     * Returns a unique number specific to the PlayingEntity class
+     * */
+    public int getType();
+
+    /**
      * Return true to announce defeat mid-game
      * */
     public boolean giveUp();

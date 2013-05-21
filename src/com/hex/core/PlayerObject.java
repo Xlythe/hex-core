@@ -116,7 +116,7 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public void setMove(Game game, final Object o, final Point point) {
-        if(o instanceof GameAction && game.currentPlayer == team) hex(SET, point);
+        if(o instanceof GameAction && game.getCurrentPlayer() == this) hex(SET, point);
     }
 
     @Override
@@ -143,5 +143,10 @@ public class PlayerObject implements PlayingEntity {
     @Override
     public byte getTeam() {
         return (byte) team;
+    }
+
+    @Override
+    public int getType() {
+        return 0;
     }
 }
