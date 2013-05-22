@@ -1,6 +1,10 @@
 package com.hex.core;
 
 import java.io.Serializable;
+<<<<<<< HEAD
+=======
+import java.util.concurrent.LinkedBlockingQueue;
+>>>>>>> e9af44e877475a5003ad5215b1102d1ef2fc315a
 
 public class PlayerObject implements PlayingEntity {
     private static final long serialVersionUID = 1L;
@@ -8,16 +12,45 @@ public class PlayerObject implements PlayingEntity {
     private int color;
     private long timeLeft;
     public final int team;
+<<<<<<< HEAD
     public int player1Type;
     public int player2Type;
     private Point point;
+=======
+    private final LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
+    public int player1Type;
+    public int player2Type;
+>>>>>>> e9af44e877475a5003ad5215b1102d1ef2fc315a
 
     public PlayerObject(int team) {
         this.team = team;
     }
 
     @Override
+<<<<<<< HEAD
     public void getPlayerTurn(Game game) {}
+=======
+    public void getPlayerTurn(Game game) {
+        hex.clear();
+        while(true) {
+            Point p;
+            try {
+                p = hex.take();
+            }
+            catch(InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                p = new Point(-1, -1);
+            }
+            if(p.equals(new Point(-1, -1))) {
+                break;
+            }
+            if(GameAction.makeMove(this, team, p, game)) {
+                break;
+            }
+        }
+    }
+>>>>>>> e9af44e877475a5003ad5215b1102d1ef2fc315a
 
     @Override
     public void undoCalled() {}
@@ -55,7 +88,16 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public void endMove() {
+<<<<<<< HEAD
         point = new Point(-1, -1);
+=======
+        try {
+            hex.put(new Point(-1, -1));
+        }
+        catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+>>>>>>> e9af44e877475a5003ad5215b1102d1ef2fc315a
     }
 
     @Override
@@ -88,8 +130,20 @@ public class PlayerObject implements PlayingEntity {
         return timeLeft;
     }
 
+<<<<<<< HEAD
     protected void setMove(Game game, final Point point) {
         this.point = point;
+=======
+    @Override
+    public void setMove(Game game, final Object o, final Point point) {
+        if(o instanceof GameAction && game.getCurrentPlayer() == this) try {
+            hex.put(point);
+        }
+        catch(InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+>>>>>>> e9af44e877475a5003ad5215b1102d1ef2fc315a
     }
 
     @Override
