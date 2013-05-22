@@ -1,6 +1,5 @@
 package com.hex.core;
 
-
 public class GameAction {
     public static int LOCAL_GAME = 1;
     public static int NET_GAME = 2;
@@ -30,7 +29,7 @@ public class GameAction {
                 if(GamePiece.checkWinTeam((byte) 2, i, game.gameOptions.gridSize, game.gamePiece)) {
                     System.out.println("Player two wins");
                     checkedFlagReset(game);
-                    GamePiece.markWinningPath((byte) 2, game.gameOptions.gridSize, i, game);
+                    GamePiece.markWinningPath((byte) 2, i, game.gameOptions.gridSize, game);
                     return true;
                 }
             }
@@ -42,14 +41,13 @@ public class GameAction {
         for(int x = game.gameOptions.gridSize - 1; x >= 0; x--) {
             for(int y = game.gameOptions.gridSize - 1; y >= 0; y--) {
                 game.gamePiece[x][y].checkedflage = false;
+                game.gamePiece[x][y].setWinningPath(false);
             }
         }
     }
 
     public static void setPiece(Point p, Game game) {
-        game.getCurrentPlayer().notify();
         if(game.getCurrentPlayer() instanceof PlayerObject) ((PlayerObject) game.getCurrentPlayer()).setMove(game, p);
-        game.getCurrentPlayer().notify();
     }
 
     private static void setTeam(byte t, int x, int y, Game game) {
