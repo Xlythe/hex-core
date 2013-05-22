@@ -23,6 +23,8 @@ public class Game implements Runnable, Serializable {
     public boolean replayRunning = false;
     private transient GameListener gameListener;
     public GameOptions gameOptions;
+    private long gameStart;
+    private long gameEnd;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
@@ -112,6 +114,7 @@ public class Game implements Runnable, Serializable {
     @Override
     public void run() {
         PlayingEntity player;
+        gameStart = System.currentTimeMillis();
 
         // Loop the game
         if(getGameListener() != null) getGameListener().onTurn(getPlayer1());
@@ -135,6 +138,7 @@ public class Game implements Runnable, Serializable {
 
             incrementCurrentPlayer();
         }
+        gameEnd = System.currentTimeMillis();
     }
 
     private boolean checkForWinner() {
@@ -228,6 +232,11 @@ public class Game implements Runnable, Serializable {
 
     private void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
+    }
+
+    public long getGameLength() {
+        if(gameEnd == 0) return System.currentTimeMillis() - gameStart;
+        return gameEnd - gameStart;
     }
 
     public static Game load(File file) throws ClassNotFoundException, IOException {
