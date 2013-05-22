@@ -1,19 +1,17 @@
 package com.hex.core;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class PlayerObject implements PlayingEntity {
     private static final long serialVersionUID = 1L;
-    private static final int SET = 0;
-    private static final int GET = 1;
     private String name;
     private int color;
     private long timeLeft;
     public final int team;
-    private final LinkedList<Point> hex = new LinkedList<Point>();
-	public int player1Type;
-	public int player2Type;
+    private final LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
+    public int player1Type;
+    public int player2Type;
 
     public PlayerObject(int team) {
         this.team = team;
@@ -21,27 +19,23 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public void getPlayerTurn(Game game) {
-        if(hex(GET, null).size() > 0 && hex(GET, null).get(0).equals(new Point(-1, -1))) {
-            hex(GET, null).clear();
-        }
+        hex.clear();
         while(true) {
-            while(hex(GET, null).size() == 0) {
-                try {
-                    Thread.sleep(80);
-                }
-                catch(InterruptedException e) {
-                    e.printStackTrace();
-                }
+            Point p;
+            try {
+                p = hex.take();
             }
-            if(hex(GET, null).get(0).equals(new Point(-1, -1))) {
-                hex(GET, null).remove(0);
+            catch(InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                p = new Point(-1, -1);
+            }
+            if(p.equals(new Point(-1, -1))) {
                 break;
             }
-            if(GameAction.makeMove(this, team, hex(GET, null).get(0), game)) {
-                hex(GET, null).remove(0);
+            if(GameAction.makeMove(this, team, p, game)) {
                 break;
             }
-            hex(GET, null).remove(0);
         }
     }
 
@@ -81,7 +75,12 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public void endMove() {
-        hex(SET, new Point(-1, -1));
+        try {
+            hex.put(new Point(-1, -1));
+        }
+        catch(InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -116,20 +115,18 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public void setMove(Game game, final Object o, final Point point) {
-        if(o instanceof GameAction && game.getCurrentPlayer() == this) hex(SET, point);
+        if(o instanceof GameAction && game.getCurrentPlayer() == this) try {
+            hex.put(point);
+        }
+        catch(InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean giveUp() {
         return false;
-    }
-
-    private synchronized LinkedList<Point> hex(int type, Point point) {
-        if(type == SET) {
-            hex.clear();
-            hex.add(point);
-        }
-        return hex;
     }
 
     @Override
