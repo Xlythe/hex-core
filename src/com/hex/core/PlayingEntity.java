@@ -119,11 +119,6 @@ public interface PlayingEntity extends Serializable {
     public long getTime();
 
     /**
-     * Store a point to play when its your turn
-     * */
-    public void setMove(Game game, Object o, Point hex);
-
-    /**
      * Returns the player's team
      * */
     public byte getTeam();

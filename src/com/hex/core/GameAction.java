@@ -1,8 +1,5 @@
 package com.hex.core;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class GameAction {
     public static int LOCAL_GAME = 1;
@@ -19,7 +16,7 @@ public class GameAction {
                     System.out.println("Player one wins");
                     checkedFlagReset(game);
 
-                    GamePiece.markWinningPath((byte) 1,game.gameOptions.gridSize,i,game);
+                    GamePiece.markWinningPath((byte) 1, game.gameOptions.gridSize, i, game);
 
                     return true;
                 }
@@ -50,7 +47,9 @@ public class GameAction {
     }
 
     public static void setPiece(Point p, Game game) {
-        game.getCurrentPlayer().setMove(game, new GameAction(), p);
+        game.getCurrentPlayer().notify();
+        if(game.getCurrentPlayer() instanceof PlayerObject) ((PlayerObject) game.getCurrentPlayer()).setMove(game, p);
+        game.getCurrentPlayer().notify();
     }
 
     private static void setTeam(byte t, int x, int y, Game game) {
@@ -60,16 +59,16 @@ public class GameAction {
         if(game.getGameListener() != null) game.getGameListener().onTeamSet();
     }
 
-    public static boolean makeMove(PlayingEntity player, int team, Point hex, Game game) {
+    public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
         if(player == null || hex.x < 0 && hex.y < 0) return false;
         else if(game.gamePiece[hex.x][hex.y].getTeam() == 0) {
-            setTeam((byte) team, hex.x, hex.y, game);
+            setTeam(player.getTeam(), hex.x, hex.y, game);
             return true;
         }
         else if(game.getMoveNumber() == 2 && game.gamePiece[hex.x][hex.y].getTeam() == 1) {
             // Swap rule
             if(game.gameOptions.swap) {
-                setTeam((byte) team, hex.x, hex.y, game);
+                setTeam(player.getTeam(), hex.x, hex.y, game);
                 return true;
             }
         }
@@ -218,11 +217,6 @@ public class GameAction {
         if(game.getGameListener() != null) game.getGameListener().onUndo();
     }
 
-    public static String insert(String text, Object name) {
-        String inserted = text.replaceAll("#", name.toString());
-        return inserted;
-    }
-
     public static PlayingEntity getPlayer(int i, Game game) {
         if(i == 1) {
             return game.getPlayer1();
@@ -234,38 +228,4 @@ public class GameAction {
             return null;
         }
     }
-
-    final static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    public static String pointToString(Point p, Game game) {
-        if(game.getMoveNumber() == 2 && game.getMoveList().thisMove.equals(game.getMoveList().nextMove.thisMove)) return "SWAP";
-        String str = "";
-        str += alphabet.charAt(p.y);
-        str += (p.x + 1);
-        return str;
-    }
-
-    public static Point stringToPoint(String str, Game game) {
-        if(game.getMoveNumber() == 1 && str.equals("SWAP")) return new Point(-1, -1);
-        if(str.equals("SWAP")) return new Point(game.getMoveList().thisMove.getX(), game.getMoveList().thisMove.getY());
-        int x = Integer.parseInt(str.substring(1)) - 1;
-        char y = str.charAt(0);
-
-        return new Point(x, alphabet.indexOf(y));
-    }
-
-    public static String md5(String s) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("MD5");
-            digest.update(s.getBytes(), 0, s.length());
-            String hash = new BigInteger(1, digest.digest()).toString(16);
-            return hash;
-        }
-        catch(NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
 }

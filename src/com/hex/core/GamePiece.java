@@ -1,11 +1,5 @@
 package com.hex.core;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
 public class GamePiece implements Serializable {
@@ -15,9 +9,6 @@ public class GamePiece implements Serializable {
 
     boolean checkedflage = false;
 
-   
-
-   
     public void setTeam(byte t, Game game) {
         teamNumber = t;
     }

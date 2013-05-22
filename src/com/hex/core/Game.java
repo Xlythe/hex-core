@@ -7,8 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import com.hex.core.Game.GameOptions;
-
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
     private boolean gameRunning = true;
@@ -45,8 +43,7 @@ public class Game implements Runnable, Serializable {
         setGameOver(false);
     }
 
-
-	private void writeObject(ObjectOutputStream outputStream) throws IOException {
+    private void writeObject(ObjectOutputStream outputStream) throws IOException {
         outputStream.writeObject(gameOptions.gridSize);
         outputStream.writeObject(gameOptions.swap);
         outputStream.writeObject(player1Type);
