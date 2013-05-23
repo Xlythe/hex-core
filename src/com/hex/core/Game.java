@@ -23,6 +23,7 @@ public class Game implements Runnable, Serializable {
     public boolean replayRunning = false;
     private transient GameListener gameListener;
     public GameOptions gameOptions;
+    private Thread replayThread;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
@@ -291,5 +292,13 @@ public class Game implements Runnable, Serializable {
         public void startTimer();
 
         public void displayTime(int minutes, int seconds);
+    }
+
+    public void replay(int time) {
+        clearBoard();
+        System.out.println("start");
+        replayThread = new Thread(new Replay(time, this), "replay");
+        replayThread.start();
+
     }
 }
