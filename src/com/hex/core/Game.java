@@ -293,8 +293,6 @@ public class Game implements Runnable, Serializable {
 
         public void onReplayEnd();
 
-        public void onTeamSet();
-
         public void onUndo();
 
         public void startTimer();

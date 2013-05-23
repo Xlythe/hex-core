@@ -41,6 +41,13 @@ public class GameAction {
         for(int x = game.gameOptions.gridSize - 1; x >= 0; x--) {
             for(int y = game.gameOptions.gridSize - 1; y >= 0; y--) {
                 game.gamePiece[x][y].checkedflage = false;
+            }
+        }
+    }
+
+    public static void winFlagReset(Game game) {
+        for(int x = game.gameOptions.gridSize - 1; x >= 0; x--) {
+            for(int y = game.gameOptions.gridSize - 1; y >= 0; y--) {
                 game.gamePiece[x][y].setWinningPath(false);
             }
         }
@@ -50,23 +57,22 @@ public class GameAction {
         if(game.getCurrentPlayer() instanceof PlayerObject) ((PlayerObject) game.getCurrentPlayer()).setMove(game, p);
     }
 
-    private static void setTeam(byte t, int x, int y, Game game) {
+    private static void setGamePiece(byte t, int x, int y, Game game) {
         game.getMoveList().makeMove(x, y, t, System.currentTimeMillis() - game.getMoveStart(), game.getMoveNumber());
         game.gamePiece[x][y].setTeam(t, game);
         game.setMoveNumber(game.getMoveNumber() + 1);
-        if(game.getGameListener() != null) game.getGameListener().onTeamSet();
     }
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
         if(player == null || hex.x < 0 && hex.y < 0) return false;
         else if(game.gamePiece[hex.x][hex.y].getTeam() == 0) {
-            setTeam(player.getTeam(), hex.x, hex.y, game);
+            setGamePiece(player.getTeam(), hex.x, hex.y, game);
             return true;
         }
         else if(game.getMoveNumber() == 2 && game.gamePiece[hex.x][hex.y].getTeam() == 1) {
             // Swap rule
             if(game.gameOptions.swap) {
-                setTeam(player.getTeam(), hex.x, hex.y, game);
+                setGamePiece(player.getTeam(), hex.x, hex.y, game);
                 return true;
             }
         }
@@ -76,6 +82,7 @@ public class GameAction {
     public static void undo(int gameLocation, Game game) {
         if(game.getMoveNumber() > 1 && game.getPlayer1().supportsUndo(game) && game.getPlayer2().supportsUndo(game)) {
             checkedFlagReset(game);
+            winFlagReset(game);
 
             // Remove the piece from the board and the movelist
             Move lastMove = game.getMoveList().thisMove;
