@@ -36,7 +36,7 @@ public class PlayerObject implements PlayingEntity {
                 break;
             }
         }
-        System.out.println("player is done " + team);
+        // System.out.println("player is done " + team);
     }
 
     @Override
@@ -81,7 +81,6 @@ public class PlayerObject implements PlayingEntity {
         catch(InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("I asked");
     }
 
     @Override

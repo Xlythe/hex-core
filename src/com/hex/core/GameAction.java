@@ -104,7 +104,7 @@ public class GameAction {
 
                     if(!(getPlayer(game.getCurrentPlayer().getTeam() % 2 + 1, game).getClass().isAssignableFrom(PlayerObject.class))) {
                         if(game.getMoveNumber() > 1) {
-                            System.out.println("I am playing an ai");
+                            // System.out.println("I am playing an ai");
                             lastMove = game.getMoveList().thisMove;
                             // game.gamePiece[lastMove.getX()][lastMove.getY()].setTeam((byte)
                             // 0, game);
@@ -112,7 +112,7 @@ public class GameAction {
                             game.setMoveNumber(game.getMoveNumber() - 1);
                         }
                         else {
-                            System.out.println("I am playing a human");
+                            // System.out.println("I am playing a human");
                             game.getCurrentPlayer().endMove();
                         }
                     }
