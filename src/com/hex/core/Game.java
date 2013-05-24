@@ -25,7 +25,6 @@ public class Game implements Runnable, Serializable {
     public GameOptions gameOptions;
     private Thread replayThread;
     private long gameStart;
-
     private long gameEnd;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
@@ -186,6 +185,10 @@ public class Game implements Runnable, Serializable {
 
     public PlayingEntity getCurrentPlayer() {
         return GameAction.getPlayer(currentPlayer, this);
+    }
+
+    public PlayingEntity getWaitingPlayer() {
+        return GameAction.getPlayer(currentPlayer % 2 + 1, this);
     }
 
     public MoveList getMoveList() {

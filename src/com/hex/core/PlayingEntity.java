@@ -126,7 +126,7 @@ public interface PlayingEntity extends Serializable {
     /**
      * Returns a unique number specific to the PlayingEntity class
      * */
-    public int getType();
+    public Player getType();
 
     /**
      * Return true to announce defeat mid-game

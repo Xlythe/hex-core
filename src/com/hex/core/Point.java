@@ -11,4 +11,12 @@ public class Point implements Serializable {
         this.x = x;
         this.y = y;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof Point) {
+            return x == ((Point) object).x && y == ((Point) object).y;
+        }
+        return false;
+    }
 }

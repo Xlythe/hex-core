@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class PlayerObject implements PlayingEntity {
     private static final long serialVersionUID = 1L;
+    private static final Point END_MOVE = new Point(-1, -1);
     private String name;
     private int color;
     private long timeLeft;
@@ -27,16 +28,16 @@ public class PlayerObject implements PlayingEntity {
             }
             catch(InterruptedException e) {
                 e.printStackTrace();
-                p = new Point(-1, -1);
+                p = END_MOVE;
             }
-            if(p.x == -1 && p.y == -1) {
+
+            if(p.equals(END_MOVE)) {
                 break;
             }
             if(GameAction.makeMove(this, p, game)) {
                 break;
             }
         }
-        // System.out.println("player is done " + team);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class PlayerObject implements PlayingEntity {
     @Override
     public void endMove() {
         try {
-            hex.put(new Point(-1, -1));
+            hex.put(END_MOVE);
         }
         catch(InterruptedException e) {
             e.printStackTrace();
@@ -141,7 +142,7 @@ public class PlayerObject implements PlayingEntity {
     }
 
     @Override
-    public int getType() {
-        return 0;
+    public Player getType() {
+        return Player.Human;
     }
 }
