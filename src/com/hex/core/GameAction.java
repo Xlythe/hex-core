@@ -64,8 +64,10 @@ public class GameAction {
     }
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
+
         if(player == null || hex.x < 0 && hex.y < 0) return false;
         if(game.replayRunning) return false;
+
         else if(game.gamePiece[hex.x][hex.y].getTeam() == 0) {
             setGamePiece(player.getTeam(), hex.x, hex.y, game);
             return true;

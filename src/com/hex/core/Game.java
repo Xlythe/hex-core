@@ -241,6 +241,12 @@ public class Game implements Runnable, Serializable {
         return gameEnd - gameStart;
     }
 
+    public void replay(int time) {
+        clearBoard();
+        replayThread = new Thread(new Replay(time, this), "replay");
+        replayThread.start();
+    }
+
     public static Game load(File file) throws ClassNotFoundException, IOException {
         // Construct the ObjectInputStream object
         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
@@ -300,13 +306,5 @@ public class Game implements Runnable, Serializable {
         public void startTimer();
 
         public void displayTime(int minutes, int seconds);
-    }
-
-    public void replay(int time) {
-        clearBoard();
-        System.out.println("start");
-        replayThread = new Thread(new Replay(time, this), "replay");
-        replayThread.start();
-
     }
 }
