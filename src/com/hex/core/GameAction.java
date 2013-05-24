@@ -65,6 +65,7 @@ public class GameAction {
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
         if(player == null || hex.x < 0 && hex.y < 0) return false;
+        if(game.replayRunning) return false;
         else if(game.gamePiece[hex.x][hex.y].getTeam() == 0) {
             setGamePiece(player.getTeam(), hex.x, hex.y, game);
             return true;
@@ -92,19 +93,24 @@ public class GameAction {
             game.setMoveNumber(game.getMoveNumber() - 1);
 
             if(gameLocation == LOCAL_GAME) {
-                if(game.isGameOver()) game.incrementCurrentPlayer();
 
-                if(game.getCurrentPlayer() instanceof PlayerObject) {
+                if(game.isGameOver()) game.incrementCurrentPlayer();
+                PlayingEntity t = game.getCurrentPlayer();
+
+                if(game.getCurrentPlayer().getClass().isAssignableFrom(PlayerObject.class)) {
                     getPlayer(game.getCurrentPlayer().getTeam() % 2 + 1, game).undoCalled();
 
-                    if(!(getPlayer(game.getCurrentPlayer().getTeam() % 2 + 1, game) instanceof PlayerObject)) {
+                    if(!(getPlayer(game.getCurrentPlayer().getTeam() % 2 + 1, game).getClass().isAssignableFrom(PlayerObject.class))) {
                         if(game.getMoveNumber() > 1) {
+                            System.out.println("I am playing an ai");
                             lastMove = game.getMoveList().thisMove;
-                            game.gamePiece[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
+                            // game.gamePiece[lastMove.getX()][lastMove.getY()].setTeam((byte)
+                            // 0, game);
                             game.setMoveList(game.getMoveList().nextMove);
                             game.setMoveNumber(game.getMoveNumber() - 1);
                         }
                         else {
+                            System.out.println("I am playing a human");
                             game.getCurrentPlayer().endMove();
                         }
                     }

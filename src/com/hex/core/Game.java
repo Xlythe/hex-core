@@ -25,6 +25,7 @@ public class Game implements Runnable, Serializable {
     public GameOptions gameOptions;
     private Thread replayThread;
     private long gameStart;
+
     private long gameEnd;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {

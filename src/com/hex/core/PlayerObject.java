@@ -29,13 +29,14 @@ public class PlayerObject implements PlayingEntity {
                 e.printStackTrace();
                 p = new Point(-1, -1);
             }
-            if(p.equals(new Point(-1, -1))) {
+            if(p.x == -1 && p.y == -1) {
                 break;
             }
             if(GameAction.makeMove(this, p, game)) {
                 break;
             }
         }
+        System.out.println("player is done " + team);
     }
 
     @Override
@@ -80,6 +81,7 @@ public class PlayerObject implements PlayingEntity {
         catch(InterruptedException e) {
             e.printStackTrace();
         }
+        System.out.println("I asked");
     }
 
     @Override
