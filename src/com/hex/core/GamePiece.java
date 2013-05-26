@@ -5,9 +5,8 @@ import java.io.Serializable;
 public class GamePiece implements Serializable {
     private static final long serialVersionUID = 1L;
     private byte teamNumber = 0; // 1 is left-right, 2 is top-down
-    private boolean winningPath;
-
-    boolean checkedflage = false;
+    private transient boolean winningPath;
+    private transient boolean checkedflage = false;
 
     public void setTeam(byte t, Game game) {
         teamNumber = t;
@@ -19,8 +18,8 @@ public class GamePiece implements Serializable {
 
     // used for checking victory condition
     public boolean checkpiece(byte team, int x, int y, GamePiece[][] gamePeace) {
-        if(team == teamNumber && !checkedflage) {
-            checkedflage = !checkedflage;
+        if(team == teamNumber && !isCheckedflage()) {
+            setCheckedflage(!isCheckedflage());
             if(checkSpot(team, x, y) || checkWinTeam(team, x, y, gamePeace)) {
                 return true;
             }
@@ -54,14 +53,14 @@ public class GamePiece implements Serializable {
 
     // used for checking victory condition
     public String checkpieceShort(byte team, int x, int y, GamePiece[][] gamePeace) {
-        if(team == teamNumber && !checkedflage) {
-            checkedflage = true;
+        if(team == teamNumber && !isCheckedflage()) {
+            setCheckedflage(true);
             String tempHolder = findShortestPath(team, x, y, gamePeace);
-            checkedflage = false;
+            setCheckedflage(false);
             if(tempHolder != null) {
                 return tempHolder;
             }
-            checkedflage = false;
+            setCheckedflage(false);
         }
 
         return null;
@@ -70,7 +69,7 @@ public class GamePiece implements Serializable {
 
     // used for checking victory condition
     public static void markWinningPath(byte team, int x, int y, Game game) {
-        String path = findShortestPath(team, x, y, game.gamePiece);
+        String path = findShortestPath(team, x, y, game.gamePieces);
         colorPath(x, y, path, game);
     }
 
@@ -176,7 +175,7 @@ public class GamePiece implements Serializable {
                 x += 1;
                 break;
             }
-            game.gamePiece[x][y].setWinningPath(true);
+            game.gamePieces[x][y].setWinningPath(true);
             path = path.substring(2, path.length());
         }
     }
@@ -187,6 +186,14 @@ public class GamePiece implements Serializable {
 
     public void setWinningPath(boolean winningPath) {
         this.winningPath = winningPath;
+    }
+
+    public boolean isCheckedflage() {
+        return checkedflage;
+    }
+
+    public void setCheckedflage(boolean checkedflage) {
+        this.checkedflage = checkedflage;
     }
 
 }

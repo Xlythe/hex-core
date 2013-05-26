@@ -1,41 +1,36 @@
 package com.hex.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
+import com.google.gson.Gson;
 
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
-    private boolean gameRunning = true;
-    public final GamePiece[][] gamePiece;
+    public final GamePiece[][] gamePieces;
     private int moveNumber;
     private MoveList moveList;
     private int currentPlayer;
-    private boolean gameOver = false;
     private PlayingEntity player1;
     private PlayingEntity player2;
-    private int player1Type;
-    private int player2Type;
-    private long moveStart;
-    public boolean replayRunning = false;
-    private transient GameListener gameListener;
+    private transient long moveStart;
     public GameOptions gameOptions;
-    private Thread replayThread;
     private long gameStart;
     private long gameEnd;
+
+    private transient GameListener gameListener;
+    public transient boolean replayRunning = false;
+    private transient boolean gameOver = false;
+    private transient boolean gameRunning = true;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
         this.player1 = player1;
         this.player2 = player2;
 
-        gamePiece = new GamePiece[gameOptions.gridSize][gameOptions.gridSize];
+        gamePieces = new GamePiece[gameOptions.gridSize][gameOptions.gridSize];
         for(int i = 0; i < gameOptions.gridSize; i++) {
             for(int j = 0; j < gameOptions.gridSize; j++) {
-                gamePiece[i][j] = new GamePiece();
+                gamePieces[i][j] = new GamePiece();
             }
         }
 
@@ -44,53 +39,6 @@ public class Game implements Runnable, Serializable {
         currentPlayer = 1;
         gameRunning = true;
         setGameOver(false);
-    }
-
-    private void writeObject(ObjectOutputStream outputStream) throws IOException {
-        outputStream.writeObject(gameOptions.gridSize);
-        outputStream.writeObject(gameOptions.swap);
-        outputStream.writeObject(player1Type);
-        outputStream.writeObject(player2Type);
-        outputStream.writeObject(getPlayer1().getColor());
-        outputStream.writeObject(getPlayer2().getColor());
-        outputStream.writeObject(getPlayer1().getName());
-        outputStream.writeObject(getPlayer2().getName());
-        outputStream.writeObject(getMoveList());
-        outputStream.writeObject(getMoveNumber());
-        outputStream.writeObject(0);// Timer type
-        outputStream.writeObject((gameOptions.timer.totalTime / 60) / 1000);
-    }
-
-    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
-        int gridSize = (Integer) inputStream.readObject();
-        boolean swap = (Boolean) inputStream.readObject();
-        GameOptions go = new GameOptions();
-        go.gridSize = gridSize;
-        go.swap = swap;
-
-        setPlayer1(new PlayerObject(1));
-        setPlayer2(new PlayerObject(2));
-
-        player1Type = (Integer) inputStream.readObject();
-        player2Type = (Integer) inputStream.readObject();
-        getPlayer1().setColor((Integer) inputStream.readObject());
-        getPlayer2().setColor((Integer) inputStream.readObject());
-        getPlayer1().setName((String) inputStream.readObject());
-        getPlayer2().setName((String) inputStream.readObject());
-        setMoveList((MoveList) inputStream.readObject());
-        setMoveNumber((Integer) inputStream.readObject());
-        int timertype = (Integer) inputStream.readObject();
-        long timerlength = (Long) inputStream.readObject();
-        gameOptions.timer = new Timer(timerlength, 0, timertype);
-
-        inputStream.close();
-
-        currentPlayer = ((getMoveNumber() + 1) % 2) + 1;
-        replayRunning = false;
-
-        // Does not support saving PlayingEntities yet
-        player1Type = 0;
-        player2Type = 0;
     }
 
     public void start() {
@@ -165,7 +113,7 @@ public class Game implements Runnable, Serializable {
     public void clearBoard() {
         for(int i = 0; i < gameOptions.gridSize; i++) {
             for(int j = 0; j < gameOptions.gridSize; j++) {
-                gamePiece[i][j] = new GamePiece();
+                gamePieces[i][j] = new GamePiece();
             }
         }
         gameListener.onClear();
@@ -211,16 +159,8 @@ public class Game implements Runnable, Serializable {
         return player1;
     }
 
-    private void setPlayer1(PlayingEntity player1) {
-        this.player1 = player1;
-    }
-
     public PlayingEntity getPlayer2() {
         return player2;
-    }
-
-    private void setPlayer2(PlayingEntity player2) {
-        this.player2 = player2;
     }
 
     public int getMoveNumber() {
@@ -246,39 +186,17 @@ public class Game implements Runnable, Serializable {
 
     public void replay(int time) {
         clearBoard();
-        replayThread = new Thread(new Replay(time, this), "replay");
-        replayThread.start();
+        new Thread(new Replay(time, this), "replay").start();
     }
 
-    public static Game load(File file) throws ClassNotFoundException, IOException {
-        // Construct the ObjectInputStream object
-        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+    public String save() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
 
-        int gridSize = (Integer) inputStream.readObject();
-        boolean swap = (Boolean) inputStream.readObject();
-        GameOptions go = new GameOptions();
-        go.gridSize = gridSize;
-        go.swap = swap;
-        Game game = new Game(go, new PlayerObject(1), new PlayerObject(2));
-
-        inputStream.readObject(); // These load player type
-        inputStream.readObject(); // which isnt used
-        game.getPlayer1().setColor((Integer) inputStream.readObject());
-        game.getPlayer2().setColor((Integer) inputStream.readObject());
-        game.getPlayer1().setName((String) inputStream.readObject());
-        game.getPlayer2().setName((String) inputStream.readObject());
-        game.setMoveList((MoveList) inputStream.readObject());
-        game.setMoveNumber((Integer) inputStream.readObject());
-        int timertype = (Integer) inputStream.readObject();
-        long timerlength = (Long) inputStream.readObject();
-        game.gameOptions.timer = new Timer(timerlength, 0, timertype);
-
-        inputStream.close();
-
-        game.currentPlayer = ((game.getMoveNumber() + 1) % 2) + 1;
-        game.replayRunning = false;
-
-        return game;
+    public static Game load(String state) {
+        Gson gson = new Gson();
+        return gson.fromJson(state, Game.class);
     }
 
     public static class GameOptions implements Serializable {
