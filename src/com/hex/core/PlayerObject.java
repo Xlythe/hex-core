@@ -10,8 +10,6 @@ public class PlayerObject implements PlayingEntity {
     private int color;
     private long timeLeft;
     public final int team;
-    public int player1Type;
-    public int player2Type;
     private final LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
 
     public PlayerObject(int team) {
