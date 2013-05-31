@@ -87,13 +87,13 @@ public class Game implements Runnable, Serializable {
 
             incrementCurrentPlayer();
         }
-        gameEnd = System.currentTimeMillis();
     }
 
     private boolean checkForWinner() {
         GameAction.checkedFlagReset(this);
         if(GameAction.checkWinPlayer(1, this)) {
             gameRunning = false;
+            gameEnd = System.currentTimeMillis();
             setGameOver(true);
             getPlayer1().win();
             getPlayer2().lose();
@@ -101,6 +101,7 @@ public class Game implements Runnable, Serializable {
         }
         else if(GameAction.checkWinPlayer(2, this)) {
             gameRunning = false;
+            gameEnd = System.currentTimeMillis();
             setGameOver(true);
             getPlayer1().lose();
             getPlayer2().win();
