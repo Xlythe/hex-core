@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
-    public final GamePiece[][] gamePieces;
     private int moveNumber;
     private MoveList moveList;
     private int currentPlayer;
@@ -17,6 +16,7 @@ public class Game implements Runnable, Serializable {
     private long gameStart;
     private long gameEnd;
 
+    public final transient GamePiece[][] gamePieces;
     private transient GameListener gameListener;
     public transient boolean replayRunning = false;
     private transient boolean gameOver = false;

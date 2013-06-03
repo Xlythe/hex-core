@@ -10,7 +10,7 @@ public class PlayerObject implements PlayingEntity {
     private int color;
     private long timeLeft;
     public final int team;
-    private final LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
+    private final transient LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
 
     public PlayerObject(int team) {
         this.team = team;
