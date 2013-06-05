@@ -1,53 +1,82 @@
 package com.hex.core;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
+/**
+ * @author sam
+ * 
+ */
 public class MoveList implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    public Move thisMove;
-    public MoveList nextMove;
 
+    private LinkedList<Move> moveList;
+
+    /**
+     * Makes a new move list
+     */
     public MoveList() {
-
+        this.moveList = new LinkedList<Move>();
     }
 
-    public MoveList(int x, int y, byte teamNumber, long time, int moveNumber) {
-        thisMove = new Move(x, y, teamNumber, time, moveNumber);
+    /**
+     * @return returns the last move
+     */
+    public Move getMove() {
+        return moveList.peekLast();
     }
 
-    public MoveList(MoveList oldMove, int x, int y, byte teamNumber, long time, int moveNumber) {
-        thisMove = new Move(x, y, teamNumber, time, moveNumber);
-        nextMove = oldMove;
-    }
-
-    public MoveList(MoveList oldMove, Move thisMove) {
-        this.thisMove = thisMove;
-        nextMove = oldMove;
-    }
-
-    public Move getmove() {
-        return thisMove;
-    }
-
-    /*
-     * do not use makeMove might not work with base cases and is not tested
+    /**
+     * makes a new move and adds it to the list
+     * 
+     * @param x
+     * @param y
+     * @param teamNumber
+     * @param time
+     *            this is the time the move was made
+     * @param moveNumber
+     *            this is the move number stating at one (I think (remove if
+     *            confirmed))
      */
     public void makeMove(int x, int y, byte teamNumber, long time, int moveNumber) {
-        nextMove = new MoveList(nextMove, thisMove);
-        thisMove = new Move(x, y, teamNumber, time, moveNumber);
+        moveList.add(new Move(x, y, teamNumber, time, moveNumber));
+    }
+
+    /**
+     * @param move
+     *            add a pre-made move to the list
+     */
+    public void makeMove(Move move) {
+        moveList.add(move);
+    }
+
+    /**
+     * @return the size of the list, equivalent to calling .size() on a
+     *         uitl.linkedlist
+     */
+    public int size() {
+        return moveList.size();
     }
 
     // for replays
+    /**
+     * @param time
+     *            the time to pause between moves
+     * @param game
+     *            a copy of the running game
+     */
     public void replay(int time, Game game) {
-        if(thisMove == null) return;
-        if(nextMove != null) nextMove.replay(time, game);
-        try {
-            if(game.replayRunning) Thread.sleep(time);
+        for(Move m : moveList) {
+            game.gamePieces[m.getX()][m.getY()].setTeam(m.getTeam(), game);
+            if(game.getGameListener() != null) game.getGameListener().onTurn(null);
+            try {
+                if(game.replayRunning) Thread.sleep(time);
+            }
+            catch(InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        catch(InterruptedException e) {
-            e.printStackTrace();
-        }
-        game.gamePieces[thisMove.getX()][thisMove.getY()].setTeam(thisMove.getTeam(), game);
-        if(game.getGameListener() != null) game.getGameListener().onTurn(null);
+
     }
 }

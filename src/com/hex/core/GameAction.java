@@ -85,9 +85,9 @@ public class GameAction {
             winFlagReset(game);
 
             // Remove the piece from the board and the movelist
-            Move lastMove = game.getMoveList().thisMove;
+            Move lastMove = game.getMoveList().getMove();
             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
-            game.setMoveList(game.getMoveList().nextMove);
+            game.getMoveList().getMove();
             game.getMoveList().replay(0, game);
             game.setMoveNumber(game.getMoveNumber() - 1);
 
@@ -99,9 +99,9 @@ public class GameAction {
 
                     if(game.getWaitingPlayer().getType().equals(Player.AI)) {
                         if(game.getMoveNumber() > 1) {
-                            lastMove = game.getMoveList().thisMove;
+                            lastMove = game.getMoveList().getMove();
                             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
-                            game.setMoveList(game.getMoveList().nextMove);
+                            game.getMoveList().getMove();
                             game.setMoveNumber(game.getMoveNumber() - 1);
                         }
                         else {
