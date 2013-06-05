@@ -3,25 +3,26 @@ package com.hex.core;
 import java.io.Serializable;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
-    public final GamePiece[][] gamePieces;
     private int moveNumber;
     private MoveList moveList;
     private int currentPlayer;
     private PlayingEntity player1;
     private PlayingEntity player2;
-    private transient long moveStart;
     public GameOptions gameOptions;
     private long gameStart;
     private long gameEnd;
 
+    public final transient GamePiece[][] gamePieces;
     private transient GameListener gameListener;
     public transient boolean replayRunning = false;
     private transient boolean gameOver = false;
     private transient boolean gameRunning = true;
+    private transient long moveStart;
 
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
@@ -88,13 +89,13 @@ public class Game implements Runnable, Serializable {
 
             incrementCurrentPlayer();
         }
-        gameEnd = System.currentTimeMillis();
     }
 
     private boolean checkForWinner() {
         GameAction.checkedFlagReset(this);
         if(GameAction.checkWinPlayer(1, this)) {
             gameRunning = false;
+            gameEnd = System.currentTimeMillis();
             setGameOver(true);
             getPlayer1().win();
             getPlayer2().lose();
@@ -102,6 +103,7 @@ public class Game implements Runnable, Serializable {
         }
         else if(GameAction.checkWinPlayer(2, this)) {
             gameRunning = false;
+            gameEnd = System.currentTimeMillis();
             setGameOver(true);
             getPlayer1().lose();
             getPlayer2().win();
@@ -192,47 +194,55 @@ public class Game implements Runnable, Serializable {
 
     public String save() {
         Gson gson = new Gson();
-        Player playerOne = this.player1.getType();
-        PlayingEntity entityOne = this.player1;
-        Player playerTwo = this.player2.getType();
-        PlayingEntity entityTwo = this.player2;
-        this.player1 = null;
-        this.player2 = null;
-        String savedGame = gson.toJson(new SavedGame(this, playerOne, entityOne, playerTwo, entityTwo));
-        this.player1 = entityOne;
-        this.player2 = entityTwo;
+        JsonObject state = new JsonObject();
+        state.add("gameOptions", gson.toJsonTree(gameOptions));
+        state.add("moveList", gson.toJsonTree(moveList));
+        state.addProperty("moveNumber", moveNumber);
+        state.addProperty("currentPlayer", currentPlayer);
+        state.addProperty("gameStart", gameStart);
+        state.addProperty("gameEnd", gameEnd);
 
-        return savedGame;
+        JsonObject player1State = new JsonObject();
+        player1State.addProperty("type", (player1.getType().equals(Player.AI)) ? ((AI) player1).getAIType() : player1.getType().toString());
+        player1State.addProperty("color", player1.getColor());
+        player1State.addProperty("name", player1.getName());
+
+        JsonObject player2State = new JsonObject();
+        player2State.addProperty("type", (player2.getType().equals(Player.AI)) ? ((AI) player2).getAIType() : player2.getType().toString());
+        player2State.addProperty("color", player2.getColor());
+        player2State.addProperty("name", player2.getName());
+
+        state.add("player1", player1State);
+        state.add("player2", player2State);
+        return gson.toJson(state);
     }
 
     public static Game load(String state) {
+        return load(state, new PlayerObject(1), new PlayerObject(2));
+    }
+
+    public static Game load(String state, PlayingEntity player1, PlayingEntity player2) {
+        final Game game;
+        final GameOptions options;
+        final MoveList moves;
+
         Gson gson = new Gson();
-        JsonElement json = gson.toJsonTree(state);
-        SavedGame sg = gson.fromJson(state, SavedGame.class);
+        JsonObject object = new JsonParser().parse(state).getAsJsonObject();
+        options = gson.fromJson(object.get("gameOptions"), GameOptions.class);
+        moves = gson.fromJson(object.get("moveList"), MoveList.class);
+        player1.setColor(object.get("player1").getAsJsonObject().get("color").getAsInt());
+        player1.setName(object.get("player1").getAsJsonObject().get("name").getAsString());
+        player2.setColor(object.get("player2").getAsJsonObject().get("color").getAsInt());
+        player2.setName(object.get("player2").getAsJsonObject().get("name").getAsString());
 
-        switch(sg.playerOne) {
-        case Human:
-            sg.game.player1 = gson.fromJson(sg.entityOne, PlayerObject.class);
-            break;
-        case AI:
-            throw new RuntimeException("toDo");
-        case Net:
-            sg.game.player1 = new PlayerObject(1);
-            break;
-        }
-        switch(sg.playerTwo) {
-        case Human:
-            sg.game.player2 = gson.fromJson(sg.entityTwo, PlayerObject.class);
-            break;
-        case AI:
-            throw new RuntimeException("toDo");
-        case Net:
-            sg.game.player2 = new PlayerObject(2);
-            break;
+        game = new Game(options, player1, player2);
+        game.moveNumber = object.get("moveNumber").getAsInt();
+        game.currentPlayer = object.get("currentPlayer").getAsInt();
+        game.gameStart = object.get("gameStart").getAsInt();
+        game.gameEnd = object.get("gameEnd").getAsInt();
+        game.moveList = moves;
 
-        }
-
-        return sg.game;
+        return game;
     }
 
     public static class GameOptions implements Serializable {
