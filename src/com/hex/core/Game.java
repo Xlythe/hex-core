@@ -244,7 +244,7 @@ public class Game implements Runnable, Serializable {
             System.err.println("error game number missmach");
             System.err.println("the game has " + game.getMoveNumber() + " but the save file says it shoud have" + moveNumber);
             if(DEBUG) {
-                throw new RuntimeException("Load error " + game.getMoveNumber() + " vs " + moveNumber);
+                throw new TurnMismatchException("Load error " + game.getMoveNumber() + " vs " + moveNumber);
             }
         }
 
