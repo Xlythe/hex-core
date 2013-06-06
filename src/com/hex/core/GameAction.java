@@ -87,7 +87,7 @@ public class GameAction {
             // Remove the piece from the board and the movelist
             Move lastMove = game.getMoveList().getMove();
             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
-            game.getMoveList().getMove();
+            game.getMoveList().removeMove();
             game.getMoveList().replay(0, game);
 
             if(gameLocation == LOCAL_GAME) {
@@ -100,7 +100,7 @@ public class GameAction {
                         if(game.getMoveNumber() > 1) {
                             lastMove = game.getMoveList().getMove();
                             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
-                            game.getMoveList().getMove();
+                            game.getMoveList().removeMove();
 
                         }
                         else {

@@ -78,4 +78,12 @@ public class MoveList implements Serializable {
         }
 
     }
+
+    /**
+     * removes the last item from the list
+     */
+    public void removeMove() {
+        moveList.removeLast();
+
+    }
 }
