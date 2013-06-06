@@ -8,7 +8,9 @@ import com.google.gson.JsonParser;
 
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
-    private int moveNumber;
+    public static final boolean DEBUG = true; // change when publishing to app
+                                              // store
+
     private MoveList moveList;
     private int currentPlayer;
     private PlayingEntity player1;
@@ -36,7 +38,6 @@ public class Game implements Runnable, Serializable {
             }
         }
 
-        setMoveNumber(1);
         setMoveList(new MoveList());
         currentPlayer = 1;
         gameRunning = true;
@@ -167,11 +168,8 @@ public class Game implements Runnable, Serializable {
     }
 
     public int getMoveNumber() {
-        return moveNumber;
-    }
-
-    public void setMoveNumber(int moveNumber) {
-        this.moveNumber = moveNumber;
+        return moveList.size() + 1; // this list starts at zero but move is move
+                                    // number one
     }
 
     public boolean isGameOver() {
@@ -197,7 +195,7 @@ public class Game implements Runnable, Serializable {
         JsonObject state = new JsonObject();
         state.add("gameOptions", gson.toJsonTree(gameOptions));
         state.add("moveList", gson.toJsonTree(moveList));
-        state.addProperty("moveNumber", moveNumber);
+        state.addProperty("moveNumber", getMoveNumber());
         state.addProperty("currentPlayer", currentPlayer);
         state.addProperty("gameStart", gameStart);
         state.addProperty("gameEnd", gameEnd);
@@ -236,11 +234,19 @@ public class Game implements Runnable, Serializable {
         player2.setName(object.get("player2").getAsJsonObject().get("name").getAsString());
 
         game = new Game(options, player1, player2);
-        game.moveNumber = object.get("moveNumber").getAsInt();
+        int moveNumber = object.get("moveNumber").getAsInt();
         game.currentPlayer = object.get("currentPlayer").getAsInt();
         game.gameStart = object.get("gameStart").getAsInt();
         game.gameEnd = object.get("gameEnd").getAsInt();
         game.moveList = moves;
+
+        if(moveNumber != game.getMoveNumber()) {
+            System.err.println("error game number missmach");
+            System.err.println("the game has " + game.getMoveNumber() + " but the save file says it shoud have" + moveNumber);
+            if(DEBUG) {
+                throw new RuntimeException("Load error " + game.getMoveNumber() + " vs " + moveNumber);
+            }
+        }
 
         return game;
     }

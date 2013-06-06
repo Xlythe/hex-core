@@ -36,8 +36,7 @@ public class MoveList implements Serializable {
      * @param time
      *            this is the time the move was made
      * @param moveNumber
-     *            this is the move number stating at one (I think (remove if
-     *            confirmed))
+     *            this is the move number stating at one for the first move.
      */
     public void makeMove(int x, int y, byte teamNumber, long time, int moveNumber) {
         moveList.add(new Move(x, y, teamNumber, time, moveNumber));

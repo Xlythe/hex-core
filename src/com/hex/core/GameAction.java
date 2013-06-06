@@ -60,7 +60,7 @@ public class GameAction {
     private static void setGamePiece(byte t, int x, int y, Game game) {
         game.getMoveList().makeMove(x, y, t, System.currentTimeMillis() - game.getMoveStart(), game.getMoveNumber());
         game.gamePieces[x][y].setTeam(t, game);
-        game.setMoveNumber(game.getMoveNumber() + 1);
+
     }
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
@@ -89,7 +89,6 @@ public class GameAction {
             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
             game.getMoveList().getMove();
             game.getMoveList().replay(0, game);
-            game.setMoveNumber(game.getMoveNumber() - 1);
 
             if(gameLocation == LOCAL_GAME) {
                 if(game.isGameOver()) game.incrementCurrentPlayer();
@@ -102,7 +101,7 @@ public class GameAction {
                             lastMove = game.getMoveList().getMove();
                             game.gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, game);
                             game.getMoveList().getMove();
-                            game.setMoveNumber(game.getMoveNumber() - 1);
+
                         }
                         else {
                             game.getCurrentPlayer().endMove();
