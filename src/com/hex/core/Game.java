@@ -99,14 +99,14 @@ public class Game implements Runnable, Serializable {
             gameEnd = System.currentTimeMillis();
             setGameOver(true);
             getPlayer1().win();
-            getPlayer2().lose();
+            getPlayer2().lose(this);
             gameListener.onWin(getPlayer1());
         }
         else if(GameAction.checkWinPlayer(2, this)) {
             gameRunning = false;
             gameEnd = System.currentTimeMillis();
             setGameOver(true);
-            getPlayer1().lose();
+            getPlayer1().lose(this);
             getPlayer2().win();
             gameListener.onWin(getPlayer2());
         }

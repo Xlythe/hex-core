@@ -78,8 +78,10 @@ public interface PlayingEntity extends Serializable {
      * You lost the game! Use this to handle any final actions such as sending
      * final moves or comparing game boards to make sure no one cheated.
      * Remember, you're still alive until quit() is called.
+     * 
+     * @param game
      **/
-    public void lose();
+    public void lose(Game game);
 
     /**
      * Quickly stop making a move. Do not run GameAction.makeMove()

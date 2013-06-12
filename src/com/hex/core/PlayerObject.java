@@ -65,7 +65,7 @@ public class PlayerObject implements PlayingEntity {
     public void win() {}
 
     @Override
-    public void lose() {}
+    public void lose(Game game) {}
 
     @Override
     public boolean supportsSave() {
