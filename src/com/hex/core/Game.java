@@ -26,6 +26,8 @@ public class Game implements Runnable, Serializable {
     private transient boolean gameRunning = true;
     private transient long moveStart;
 
+    private Thread gameThread;
+
     public Game(GameOptions gameOptions, PlayingEntity player1, PlayingEntity player2) {
         this.gameOptions = gameOptions;
         this.player1 = player1;
@@ -51,7 +53,8 @@ public class Game implements Runnable, Serializable {
         getPlayer1().setTime(gameOptions.timer.totalTime);
         getPlayer2().setTime(gameOptions.timer.totalTime);
         gameOptions.timer.start(this);
-        new Thread(this, "runningGame").start();
+        setGameThread(new Thread(this, "runningGame"));
+        getGameThread().start();
     }
 
     public void stop() {
@@ -79,7 +82,7 @@ public class Game implements Runnable, Serializable {
                 player.getPlayerTurn(this);
 
                 // Update the timer
-                if(gameOptions.timer.type == 1) {
+                if(gameOptions.timer.type == Timer.PER_MOVE) {
                     gameOptions.timer.startTime = System.currentTimeMillis();
                     player.setTime(gameOptions.timer.totalTime);
                 }
@@ -249,6 +252,14 @@ public class Game implements Runnable, Serializable {
         }
 
         return game;
+    }
+
+    public Thread getGameThread() {
+        return gameThread;
+    }
+
+    public void setGameThread(Thread gameThread) {
+        this.gameThread = gameThread;
     }
 
     public static class GameOptions implements Serializable {
