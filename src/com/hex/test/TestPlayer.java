@@ -71,9 +71,6 @@ public class TestPlayer implements PlayingEntity {
     public void win() {}
 
     @Override
-    public void lose() {}
-
-    @Override
     public boolean supportsSave() {
         return false;
     }
@@ -149,4 +146,7 @@ public class TestPlayer implements PlayingEntity {
     public Player getType() {
         return Player.AI;
     }
+
+    @Override
+    public void lose(Game game) {}
 }
