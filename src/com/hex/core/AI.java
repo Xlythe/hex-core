@@ -8,6 +8,11 @@ public abstract class AI implements PlayingEntity {
     public final int team;
     private boolean skipMove = false;
 
+    @Override
+    public void startGame() {
+
+    }
+
     public AI(int team) {
         this.team = team;
     }
