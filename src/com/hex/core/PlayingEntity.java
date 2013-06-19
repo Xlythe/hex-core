@@ -134,4 +134,9 @@ public interface PlayingEntity extends Serializable {
      * Return true to announce defeat mid-game
      * */
     public boolean giveUp();
+
+    /**
+     * tell the player a game is starting
+     * */
+    public void startGame();
 }

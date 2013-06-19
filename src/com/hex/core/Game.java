@@ -67,7 +67,9 @@ public class Game implements Runnable, Serializable {
     public void run() {
         PlayingEntity player;
         gameStart = System.currentTimeMillis();
-
+        // tell the players of a new game
+        player1.startGame();
+        player2.startGame();
         // Loop the game
         if(getGameListener() != null) getGameListener().onTurn(getPlayer1());
         while(gameRunning) {
@@ -279,5 +281,10 @@ public class Game implements Runnable, Serializable {
         public void startTimer();
 
         public void displayTime(int minutes, int seconds);
+    }
+
+    public boolean canNewGame() {
+        return(this.player1.supportsNewgame() && this.player2.supportsNewgame());
+
     }
 }

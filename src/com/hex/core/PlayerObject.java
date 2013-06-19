@@ -143,4 +143,9 @@ public class PlayerObject implements PlayingEntity {
     public Player getType() {
         return Player.Human;
     }
+
+    @Override
+    public void startGame() {
+        this.hex.clear();
+    }
 }
