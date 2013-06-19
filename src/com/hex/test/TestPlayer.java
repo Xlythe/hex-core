@@ -149,4 +149,10 @@ public class TestPlayer implements PlayingEntity {
 
     @Override
     public void lose(Game game) {}
+
+    @Override
+    public void startGame() {
+        // TODO Auto-generated method stub
+
+    }
 }
