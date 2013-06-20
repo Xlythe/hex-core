@@ -200,7 +200,7 @@ public class Game implements Runnable, Serializable {
             GameAction.checkedFlagReset(this);
             GameAction.winFlagReset(this);
             // moveNumber--;
-            System.out.println("undoing moves upto and including " + moveNumber + "stating at " + getMoveNumber());
+            System.out.println("undoing moves upto " + moveNumber + "stating at " + getMoveNumber());
             while(getMoveNumber() != moveNumber) {
                 // Remove the piece from the board and the movelist
                 Move lastMove = getMoveList().getMove();
@@ -211,7 +211,8 @@ public class Game implements Runnable, Serializable {
             }
 
             if(moveNumber % 2 + 1 == getCurrentPlayer().getTeam()) {
-                incrementCurrentPlayer();
+                getCurrentPlayer().endMove();
+                System.out.println("increment");
             }
 
             getMoveList().replay(0, this);
