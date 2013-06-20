@@ -84,6 +84,5 @@ public class MoveList implements Serializable {
      */
     public void removeMove() {
         moveList.removeLast();
-
     }
 }

@@ -195,6 +195,35 @@ public class Game implements Runnable, Serializable {
         new Thread(new Replay(time, this), "replay").start();
     }
 
+    public void undo(int moveNumber) {
+        if(getMoveNumber() > 1 && getPlayer1().supportsUndo(this) && getPlayer2().supportsUndo(this)) {
+            GameAction.checkedFlagReset(this);
+            GameAction.winFlagReset(this);
+
+            while(getMoveNumber() != moveNumber) {
+                // Remove the piece from the board and the movelist
+                Move lastMove = getMoveList().getMove();
+
+                gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, this);
+                getMoveList().removeMove();
+                moveNumber--;
+            }
+
+            if(moveNumber % 2 + 1 != getCurrentPlayer().getTeam()) {
+                incrementCurrentPlayer();
+            }
+
+            getMoveList().replay(0, this);
+
+            // Reset the game if it's already ended
+            if(isGameOver()) {
+                start();
+            }
+        }
+
+        if(getGameListener() != null) getGameListener().onUndo();
+    }
+
     public String save() {
         Gson gson = new Gson();
         JsonObject state = new JsonObject();
@@ -269,7 +298,6 @@ public class Game implements Runnable, Serializable {
         public Timer timer;
         public int gridSize;
         public boolean swap;
-
     }
 
     public static interface GameListener {
