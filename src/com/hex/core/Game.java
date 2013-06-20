@@ -196,20 +196,21 @@ public class Game implements Runnable, Serializable {
     }
 
     public void undo(int moveNumber) {
-        if(getMoveNumber() > 1 && getPlayer1().supportsUndo(this) && getPlayer2().supportsUndo(this)) {
+        if(getMoveNumber() > 1) {
             GameAction.checkedFlagReset(this);
             GameAction.winFlagReset(this);
-
+            // moveNumber--;
+            System.out.println("undoing moves upto and including " + moveNumber + "stating at " + getMoveNumber());
             while(getMoveNumber() != moveNumber) {
                 // Remove the piece from the board and the movelist
                 Move lastMove = getMoveList().getMove();
+                System.out.println(getMoveNumber());
 
                 gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, this);
                 getMoveList().removeMove();
-                moveNumber--;
             }
 
-            if(moveNumber % 2 + 1 != getCurrentPlayer().getTeam()) {
+            if(moveNumber % 2 + 1 == getCurrentPlayer().getTeam()) {
                 incrementCurrentPlayer();
             }
 
