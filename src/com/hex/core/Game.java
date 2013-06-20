@@ -196,7 +196,7 @@ public class Game implements Runnable, Serializable {
     }
 
     public void undo(int moveNumber) {
-        if(getMoveNumber() > 1) {
+        if(getMoveNumber() > 1 && moveNumber > 1 && moveNumber < getMoveNumber()) {
             GameAction.checkedFlagReset(this);
             GameAction.winFlagReset(this);
 
