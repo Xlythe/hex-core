@@ -199,12 +199,10 @@ public class Game implements Runnable, Serializable {
         if(getMoveNumber() > 1) {
             GameAction.checkedFlagReset(this);
             GameAction.winFlagReset(this);
-            // moveNumber--;
-            System.out.println("undoing moves upto " + moveNumber + "stating at " + getMoveNumber());
+
             while(getMoveNumber() != moveNumber) {
                 // Remove the piece from the board and the movelist
                 Move lastMove = getMoveList().getMove();
-                System.out.println(getMoveNumber());
 
                 gamePieces[lastMove.getX()][lastMove.getY()].setTeam((byte) 0, this);
                 getMoveList().removeMove();
@@ -212,7 +210,6 @@ public class Game implements Runnable, Serializable {
 
             if(moveNumber % 2 + 1 == getCurrentPlayer().getTeam()) {
                 getCurrentPlayer().endMove();
-                System.out.println("increment");
             }
 
             getMoveList().replay(0, this);
