@@ -58,4 +58,30 @@ public class Move implements Serializable {
     public void setMoveNumber(int moveNumber) {
         this.moveNumber = moveNumber;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass().isAssignableFrom(Move.class)) {
+            Move other = (Move) obj;
+            if(other.moveNumber == this.moveNumber) {
+                if(other.team == this.team) {
+                    if(other.x == this.x) {
+                        if(other.y == this.y) {
+                            return true;
+                        }
+                    }
+
+                }
+            }
+        }
+        else {
+            return super.equals(obj);
+        }
+        return false;
+    }
 }

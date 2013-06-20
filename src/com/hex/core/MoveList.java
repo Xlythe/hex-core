@@ -28,6 +28,18 @@ public class MoveList implements Serializable {
     }
 
     /**
+     * @param num
+     *            the amount of moves to go back
+     * @return returns the move made num moves ago
+     */
+    public Move getPastMove(int num) {
+        if(num < this.size()) {
+            return moveList.get(this.size() - (num - 1));
+        }
+        return null;
+    }
+
+    /**
      * makes a new move and adds it to the list
      * 
      * @param x
