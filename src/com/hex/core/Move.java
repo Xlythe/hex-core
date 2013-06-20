@@ -58,4 +58,14 @@ public class Move implements Serializable {
     public void setMoveNumber(int moveNumber) {
         this.moveNumber = moveNumber;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass().isAssignableFrom(Move.class)) {
+            Move m = (Move) obj;
+            return m.getMoveNumber() == this.getMoveNumber() && m.getTeam() == this.getTeam() && m.getTime() == this.getTime() && m.getX() == this.getX()
+                    && m.getY() == this.getY();
+        }
+        return false;
+    }
 }
