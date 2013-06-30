@@ -8,8 +8,7 @@ import com.google.gson.JsonParser;
 
 public class Game implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;
-    public static final boolean DEBUG = true; // change when publishing to app
-                                              // store
+    public static final boolean DEBUG = true;
 
     private MoveList moveList;
     private int currentPlayer;
@@ -25,6 +24,7 @@ public class Game implements Runnable, Serializable {
     private transient boolean gameOver = false;
     private transient boolean gameRunning = true;
     private transient long moveStart;
+    private transient PlayingEntity winner;
 
     private Thread gameThread;
 
@@ -50,6 +50,7 @@ public class Game implements Runnable, Serializable {
         if(getGameListener() != null) getGameListener().onStart();
         setGameOver(false);
         gameRunning = true;
+        winner = null;
         getPlayer1().setTime(gameOptions.timer.totalTime);
         getPlayer2().setTime(gameOptions.timer.totalTime);
         gameOptions.timer.start(this);
@@ -68,7 +69,7 @@ public class Game implements Runnable, Serializable {
 
     @Override
     public void run() {
-        PlayingEntity player;
+        PlayingEntity player = null;
         gameStart = System.currentTimeMillis();
         // tell the players of a new game
         player1.startGame();
@@ -79,6 +80,7 @@ public class Game implements Runnable, Serializable {
             if(!checkForWinner()) {
                 setMoveStart(System.currentTimeMillis());
                 player = getCurrentPlayer();
+                if(getGameListener() != null) getGameListener().onTurn(player);
 
                 // Let the player make its move
                 player.getPlayerTurn(this);
@@ -89,8 +91,6 @@ public class Game implements Runnable, Serializable {
                     player.setTime(gameOptions.timer.totalTime);
                 }
                 player.setTime(player.getTime() + gameOptions.timer.additionalTime);
-
-                if(getGameListener() != null) getGameListener().onTurn(player);
             }
 
             incrementCurrentPlayer();
@@ -100,20 +100,19 @@ public class Game implements Runnable, Serializable {
     private boolean checkForWinner() {
         GameAction.checkedFlagReset(this);
         if(GameAction.checkWinPlayer(1, this)) {
-            gameRunning = false;
-            gameEnd = System.currentTimeMillis();
-            setGameOver(true);
-            getPlayer1().win();
-            getPlayer2().lose(this);
-            gameListener.onWin(getPlayer1());
+            winner = getPlayer1();
         }
         else if(GameAction.checkWinPlayer(2, this)) {
+            winner = getPlayer2();
+        }
+
+        if(winner != null) {
             gameRunning = false;
             gameEnd = System.currentTimeMillis();
             setGameOver(true);
-            getPlayer1().lose(this);
-            getPlayer2().win();
-            gameListener.onWin(getPlayer2());
+            winner.win();
+            getOtherPlayer(winner).lose(this);
+            gameListener.onWin(winner);
         }
 
         return isGameOver();
@@ -146,6 +145,10 @@ public class Game implements Runnable, Serializable {
 
     public PlayingEntity getWaitingPlayer() {
         return GameAction.getPlayer(currentPlayer % 2 + 1, this);
+    }
+
+    public PlayingEntity getOtherPlayer(PlayingEntity player) {
+        return player.getTeam() == 2 ? getPlayer1() : getPlayer2();
     }
 
     public MoveList getMoveList() {
@@ -190,13 +193,17 @@ public class Game implements Runnable, Serializable {
         return gameEnd - gameStart;
     }
 
+    public PlayingEntity getWinner() {
+        return winner;
+    }
+
     public void replay(int time) {
         clearBoard();
         new Thread(new Replay(time, this), "replay").start();
     }
 
     public void undo(int moveNumber) {
-        if(getMoveNumber() > 1 && moveNumber > 1 && moveNumber < getMoveNumber()) {
+        if(getMoveNumber() > 1 && moveNumber >= 1 && moveNumber < getMoveNumber()) {
             GameAction.checkedFlagReset(this);
             GameAction.winFlagReset(this);
 

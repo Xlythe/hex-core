@@ -81,11 +81,13 @@ public class MoveList implements Serializable {
         for(Move m : moveList) {
             game.gamePieces[m.getX()][m.getY()].setTeam(m.getTeam(), game);
             if(game.getGameListener() != null) game.getGameListener().onTurn(null);
-            try {
-                if(game.replayRunning) Thread.sleep(time);
-            }
-            catch(InterruptedException e) {
-                e.printStackTrace();
+            if(m != moveList.get(moveList.size() - 1)) {
+                try {
+                    if(game.replayRunning) Thread.sleep(time);
+                }
+                catch(InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

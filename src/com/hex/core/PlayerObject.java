@@ -10,6 +10,7 @@ public class PlayerObject implements PlayingEntity {
     private int color;
     private long timeLeft;
     public final int team;
+    private boolean forfeit;
     private final transient LinkedBlockingQueue<Point> hex = new LinkedBlockingQueue<Point>();
 
     public PlayerObject(int team) {
@@ -123,7 +124,7 @@ public class PlayerObject implements PlayingEntity {
 
     @Override
     public boolean giveUp() {
-        return false;
+        return forfeit;
     }
 
     @Override
@@ -147,5 +148,9 @@ public class PlayerObject implements PlayingEntity {
     @Override
     public void startGame() {
         this.hex.clear();
+    }
+
+    public void forfeit() {
+        this.forfeit = true;
     }
 }
