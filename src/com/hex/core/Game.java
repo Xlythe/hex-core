@@ -193,6 +193,14 @@ public class Game implements Runnable, Serializable {
         return gameEnd - gameStart;
     }
 
+    public long getGameStart() {
+        return gameStart;
+    }
+
+    public long getGameEnd() {
+        return gameEnd;
+    }
+
     public PlayingEntity getWinner() {
         return winner;
     }
@@ -276,8 +284,8 @@ public class Game implements Runnable, Serializable {
         game = new Game(options, player1, player2);
         int moveNumber = object.get("moveNumber").getAsInt();
         game.currentPlayer = object.get("currentPlayer").getAsInt();
-        game.gameStart = object.get("gameStart").getAsInt();
-        game.gameEnd = object.get("gameEnd").getAsInt();
+        game.gameStart = object.get("gameStart").getAsLong();
+        game.gameEnd = object.get("gameEnd").getAsLong();
         game.moveList = moves;
 
         if(moveNumber != game.getMoveNumber()) {
