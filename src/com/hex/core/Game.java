@@ -124,7 +124,7 @@ public class Game implements Runnable, Serializable {
                 gamePieces[i][j] = new GamePiece();
             }
         }
-        gameListener.onClear();
+        if(gameListener != null) gameListener.onClear();
     }
 
     protected void incrementCurrentPlayer() {

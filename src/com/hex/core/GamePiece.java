@@ -1,6 +1,7 @@
 package com.hex.core;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
 
 public class GamePiece implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -74,49 +75,47 @@ public class GamePiece implements Serializable {
     }
 
     public static String findShortestPath(byte team, int x, int y, GamePiece[][] gamePeace) {
-        if(checkSpot(team, x, y)) {
-            return "";
+        int size = gamePeace.length;
+        if(x < 0 || y < 0 || x >= size || y >= size || gamePeace[x][y].getTeam() != team) return null;
+        int[] dx = {-1, 1, 0, 0, -1, 1};
+        int[] dy = {0, 0, -1, 1, 1, -1};
+        String[] labels = {"lx", "rx", "uy", "dy", "dd", "ud"};
+        boolean[][] seen = new boolean[size][size];
+        int[][] previousX = new int[size][size];
+        int[][] previousY = new int[size][size];
+        int[][] previousDirection = new int[size][size];
+        ArrayDeque<int[]> queue = new ArrayDeque<int[]>();
+        queue.add(new int[] {x, y});
+        seen[x][y] = true;
+        int endX = -1, endY = -1;
+        while(!queue.isEmpty()) {
+            int[] current = queue.removeFirst();
+            if(checkSpot(team, current[0], current[1])) {
+                endX = current[0]; endY = current[1];
+                break;
+            }
+            for(int direction = 0; direction < 6; direction++) {
+                int nextX = current[0] + dx[direction];
+                int nextY = current[1] + dy[direction];
+                if(nextX < 0 || nextY < 0 || nextX >= size || nextY >= size
+                        || seen[nextX][nextY] || gamePeace[nextX][nextY].getTeam() != team) continue;
+                seen[nextX][nextY] = true;
+                previousX[nextX][nextY] = current[0];
+                previousY[nextX][nextY] = current[1];
+                previousDirection[nextX][nextY] = direction;
+                queue.addLast(new int[] {nextX, nextY});
+            }
         }
-        String[] allPath = new String[6];
-
-        if(y < gamePeace.length && x - 1 >= 0) {
-            allPath[0] = gamePeace[x - 1][y].checkpieceShort(team, x - 1, y, gamePeace);
+        if(endX < 0) return null;
+        StringBuilder path = new StringBuilder();
+        while(endX != x || endY != y) {
+            int direction = previousDirection[endX][endY];
+            path.insert(0, labels[direction]);
+            int parentX = previousX[endX][endY];
+            endY = previousY[endX][endY];
+            endX = parentX;
         }
-        if(y < gamePeace.length && x + 1 < gamePeace.length) {
-            allPath[1] = gamePeace[x + 1][y].checkpieceShort(team, x + 1, y, gamePeace);
-
-        }
-        if(x < gamePeace.length && y - 1 >= 0) {
-            allPath[2] = gamePeace[x][y - 1].checkpieceShort(team, x, y - 1, gamePeace);
-        }
-        if(x < gamePeace.length && y + 1 < gamePeace.length) {
-            allPath[3] = gamePeace[x][y + 1].checkpieceShort(team, x, y + 1, gamePeace);
-        }
-        if(y + 1 < gamePeace.length && x - 1 >= 0) {
-            allPath[4] = gamePeace[x - 1][y + 1].checkpieceShort(team, x - 1, y + 1, gamePeace);
-        }
-
-        if(y - 1 < gamePeace.length && x + 1 < gamePeace.length && y - 1 >= 0) {
-            allPath[5] = gamePeace[x + 1][y - 1].checkpieceShort(team, x + 1, y - 1, gamePeace);
-        }
-        int dir = findShortestString(allPath, 0, 5);
-        if(allPath[dir] == null || allPath[dir] == "null") return null;
-        switch(dir) {
-        // ud=y-1 & x+1 dd = y+1 & x-1 uy=y-1 dy=y+1 lx=x-1 rx=x+1
-        case 0:
-            return "lx" + allPath[0];
-        case 1:
-            return "rx" + allPath[1];
-        case 2:
-            return "uy" + allPath[2];
-        case 3:
-            return "dy" + allPath[3];
-        case 4:
-            return "dd" + allPath[4];
-        case 5:
-            return "ud" + allPath[5];
-        }
-        return null;
+        return path.toString();
     }
 
     // used for checking victory condition
@@ -150,7 +149,7 @@ public class GamePiece implements Serializable {
     }
 
     public static void colorPath(int x, int y, String path, Game game) {
-
+        if(path != null) game.gamePieces[x][y].setWinningPath(true);
         while(path != null && !path.isEmpty()) {
             switch(posDir.valueOf(path.substring(0, 2))) {
             // ud=y-1 & x+1 dd = y+1 & x-1 uy=y-1 dy=y+1 lx=x-1 rx=x+1

@@ -64,7 +64,8 @@ public class GameAction {
     }
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
-        if(game.replayRunning || player == null || hex.x < 0 && hex.y < 0) return false;
+        if(game.replayRunning || player == null || hex.x < 0 || hex.y < 0
+                || hex.x >= game.gameOptions.gridSize || hex.y >= game.gameOptions.gridSize) return false;
         else if(game.gamePieces[hex.x][hex.y].getTeam() == 0) {
             setGamePiece(player.getTeam(), hex.x, hex.y, game);
             return true;
@@ -72,7 +73,15 @@ public class GameAction {
         else if(game.getMoveNumber() == 2 && game.gamePieces[hex.x][hex.y].getTeam() == 1) {
             // Swap rule
             if(game.gameOptions.swap) {
-                setGamePiece(player.getTeam(), hex.x, hex.y, game);
+                // Transpose the opening stone when it changes from the
+                // left/right side to the top/bottom side. Keeping an off-axis
+                // stone in place gives the swapping player a different move.
+                int newX = hex.y;
+                int newY = hex.x;
+                game.getMoveList().makeSwapMove(newX, newY, player.getTeam(),
+                        System.currentTimeMillis() - game.getMoveStart(), game.getMoveNumber());
+                game.gamePieces[hex.x][hex.y].setTeam((byte) 0, game);
+                game.gamePieces[newX][newY].setTeam(player.getTeam(), game);
                 return true;
             }
         }

@@ -54,6 +54,10 @@ public class MoveList implements Serializable {
         moveList.add(new Move(x, y, teamNumber, time, moveNumber));
     }
 
+    public void makeSwapMove(int x, int y, byte teamNumber, long time, int moveNumber) {
+        moveList.add(new Move(x, y, teamNumber, time, moveNumber, true));
+    }
+
     /**
      * @param move
      *            add a pre-made move to the list
@@ -78,8 +82,13 @@ public class MoveList implements Serializable {
      *            a copy of the running game
      */
     public void replay(int time, Game game) {
+        Move previous = null;
         for(Move m : moveList) {
+            if(m.isSwap() && previous != null) {
+                game.gamePieces[previous.getX()][previous.getY()].setTeam((byte) 0, game);
+            }
             game.gamePieces[m.getX()][m.getY()].setTeam(m.getTeam(), game);
+            previous = m;
             if(game.getGameListener() != null) game.getGameListener().onTurn(null);
             if(m != moveList.get(moveList.size() - 1)) {
                 try {

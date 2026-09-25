@@ -9,13 +9,19 @@ public final class Move implements Serializable {
     private long time;
     private byte team;
     private int moveNumber;
+    private boolean swap;
 
     public Move(int x, int y, byte team, long time, int moveNumber) {
+        this(x, y, team, time, moveNumber, false);
+    }
+
+    public Move(int x, int y, byte team, long time, int moveNumber, boolean swap) {
         this.setX(x);
         this.setY(y);
         this.setTime(time);
         this.setTeam(team);
         this.setMoveNumber(moveNumber);
+        this.swap = swap;
 
     }
 
@@ -53,6 +59,10 @@ public final class Move implements Serializable {
 
     public int getMoveNumber() {
         return moveNumber;
+    }
+
+    public boolean isSwap() {
+        return swap;
     }
 
     public void setMoveNumber(int moveNumber) {
