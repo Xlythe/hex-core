@@ -17,6 +17,9 @@ public class Replay implements Runnable {
         if(game.getGameListener() != null) game.getGameListener().onReplayStart();
         game.replayRunning = true;
         game.getMoveList().replay(time, game);
+        if (!GamePiece.markShortestWinningChain((byte) 1, game)) {
+            GamePiece.markShortestWinningChain((byte) 2, game);
+        }
         if(game.getGameListener() != null) game.getGameListener().onTurn(null);
         game.replayRunning = false;
         if(game.isGameOver()) {
