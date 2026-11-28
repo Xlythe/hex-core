@@ -7,34 +7,12 @@ public class GameAction {
     private GameAction() {}
 
     public static synchronized boolean checkWinPlayer(int team, Game game) {
-        if(team == 1) {
-            if(game.gameOptions.timer.type != 0 && game.getPlayer2().getTime() < 0) return true;
-            if(game.getPlayer2().giveUp()) return true;
-            for(int i = 0; i < game.gameOptions.gridSize; i++) {
-                if(GamePiece.checkWinTeam((byte) 1, game.gameOptions.gridSize, i, game.gamePieces)) {
-                    System.out.println("Player one wins");
-                    checkedFlagReset(game);
-
-                    GamePiece.markWinningPath((byte) 1, game.gameOptions.gridSize, i, game);
-
-                    return true;
-                }
-            }
-            return false;
+        if (team != 1 && team != 2) return false;
+        PlayingEntity opponent = team == 1 ? game.getPlayer2() : game.getPlayer1();
+        if (opponent.giveUp() || (game.gameOptions.timer.type != Timer.NO_TIMER && opponent.getTime() < 0)) {
+            return true;
         }
-        else {
-            if(game.gameOptions.timer.type != 0 && game.getPlayer1().getTime() < 0) return true;
-            if(game.getPlayer1().giveUp()) return true;
-            for(int i = 0; i < game.gameOptions.gridSize; i++) {
-                if(GamePiece.checkWinTeam((byte) 2, i, game.gameOptions.gridSize, game.gamePieces)) {
-                    System.out.println("Player two wins");
-                    checkedFlagReset(game);
-                    GamePiece.markWinningPath((byte) 2, i, game.gameOptions.gridSize, game);
-                    return true;
-                }
-            }
-            return false;
-        }
+        return GamePiece.markShortestWinningChain((byte) team, game);
     }
 
     public static void checkedFlagReset(Game game) {
@@ -64,9 +42,13 @@ public class GameAction {
     }
 
     public static boolean makeMove(PlayingEntity player, Point hex, Game game) {
-        if(game.replayRunning || player == null || hex.x < 0 || hex.y < 0
+        if(game.isGameOver() || game.replayRunning || player == null || hex == null
+                || player.getTeam() != (game.getMoveList().size() % 2) + 1 || hex.x < 0 || hex.y < 0
                 || hex.x >= game.gameOptions.gridSize || hex.y >= game.gameOptions.gridSize) return false;
-        else if(game.gamePieces[hex.x][hex.y].getTeam() == 0) {
+        // Callers can submit a second action before the game loop announces the first win.
+        if (game.getMoveList().size() >= 2 * game.gameOptions.gridSize - 1
+                && GamePiece.markShortestWinningChain((byte) (3 - player.getTeam()), game)) return false;
+        if(game.gamePieces[hex.x][hex.y].getTeam() == 0) {
             setGamePiece(player.getTeam(), hex.x, hex.y, game);
             return true;
         }

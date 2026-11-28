@@ -2,6 +2,9 @@ package com.hex.core;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GamePiece implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -74,46 +77,70 @@ public class GamePiece implements Serializable {
         colorPath(x, y, path, game);
     }
 
-    public static String findShortestPath(byte team, int x, int y, GamePiece[][] gamePeace) {
-        int size = gamePeace.length;
-        if(x < 0 || y < 0 || x >= size || y >= size || gamePeace[x][y].getTeam() != team) return null;
-        int[] dx = {-1, 1, 0, 0, -1, 1};
-        int[] dy = {0, 0, -1, 1, 1, -1};
-        String[] labels = {"lx", "rx", "uy", "dy", "dd", "ud"};
-        boolean[][] seen = new boolean[size][size];
-        int[][] previousX = new int[size][size];
-        int[][] previousY = new int[size][size];
-        int[][] previousDirection = new int[size][size];
-        ArrayDeque<int[]> queue = new ArrayDeque<int[]>();
-        queue.add(new int[] {x, y});
-        seen[x][y] = true;
-        int endX = -1, endY = -1;
-        while(!queue.isEmpty()) {
-            int[] current = queue.removeFirst();
-            if(checkSpot(team, current[0], current[1])) {
-                endX = current[0]; endY = current[1];
-                break;
-            }
-            for(int direction = 0; direction < 6; direction++) {
-                int nextX = current[0] + dx[direction];
-                int nextY = current[1] + dy[direction];
-                if(nextX < 0 || nextY < 0 || nextX >= size || nextY >= size
-                        || seen[nextX][nextY] || gamePeace[nextX][nextY].getTeam() != team) continue;
-                seen[nextX][nextY] = true;
-                previousX[nextX][nextY] = current[0];
-                previousY[nextX][nextY] = current[1];
-                previousDirection[nextX][nextY] = direction;
-                queue.addLast(new int[] {nextX, nextY});
+    private static final int[] DX = {-1, 1, 0, 0, -1, 1};
+    private static final int[] DY = {0, 0, -1, 1, 1, -1};
+    private static final String[] LABEL = {"lx", "rx", "uy", "dy", "dd", "ud"};
+
+    // A null start seeds every occupied cell on the far edge at distance zero.
+    private static List<Point> shortestChain(byte team, GamePiece[][] board, Point start) {
+        int size = board.length;
+        byte[][] parent = new byte[size][size]; // 0 = unseen, 1 = source, 2..7 = incoming direction
+        ArrayDeque<Point> queue = new ArrayDeque<Point>();
+        if (team != 1 && team != 2) return Collections.emptyList();
+        for (int i = 0; i < (start == null ? size : 1); i++) {
+            int x = start == null ? (team == 1 ? size - 1 : i) : start.x;
+            int y = start == null ? (team == 2 ? size - 1 : i) : start.y;
+            if (x >= 0 && x < size && y >= 0 && y < size && board[x][y].getTeam() == team) {
+                parent[x][y] = 1;
+                queue.addLast(new Point(x, y));
             }
         }
-        if(endX < 0) return null;
+        while (!queue.isEmpty()) {
+            Point cell = queue.removeFirst();
+            if (checkSpot(team, cell.x, cell.y)) {
+                List<Point> path = new ArrayList<Point>();
+                path.add(cell);
+                while (parent[cell.x][cell.y] != 1) {
+                    int direction = parent[cell.x][cell.y] - 2;
+                    cell = new Point(cell.x - DX[direction], cell.y - DY[direction]);
+                    path.add(cell);
+                }
+                Collections.reverse(path);
+                return path;
+            }
+            for (int d = 0; d < DX.length; d++) {
+                int x = cell.x + DX[d], y = cell.y + DY[d];
+                if (x >= 0 && x < size && y >= 0 && y < size
+                        && parent[x][y] == 0 && board[x][y].getTeam() == team) {
+                    parent[x][y] = (byte) (d + 2);
+                    queue.addLast(new Point(x, y));
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    static boolean markShortestWinningChain(byte team, Game game) {
+        List<Point> path = shortestChain(team, game.gamePieces, null);
+        if (path.isEmpty()) return false;
+        GameAction.winFlagReset(game);
+        for (Point point : path) game.gamePieces[point.x][point.y].setWinningPath(true);
+        return true;
+    }
+
+    /** Historical single-start API. Returns direction pairs leading to the near edge. */
+    public static String findShortestPath(byte team, int x, int y, GamePiece[][] board) {
+        List<Point> chain = shortestChain(team, board, new Point(x, y));
+        if (chain.isEmpty()) return null;
         StringBuilder path = new StringBuilder();
-        while(endX != x || endY != y) {
-            int direction = previousDirection[endX][endY];
-            path.insert(0, labels[direction]);
-            int parentX = previousX[endX][endY];
-            endY = previousY[endX][endY];
-            endX = parentX;
+        for (int i = 1; i < chain.size(); i++) {
+            Point previous = chain.get(i - 1), next = chain.get(i);
+            for (int d = 0; d < DX.length; d++) {
+                if (previous.x + DX[d] == next.x && previous.y + DY[d] == next.y) {
+                    path.append(LABEL[d]);
+                    break;
+                }
+            }
         }
         return path.toString();
     }

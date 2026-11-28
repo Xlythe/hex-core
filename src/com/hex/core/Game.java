@@ -98,7 +98,6 @@ public class Game implements Runnable, Serializable {
     }
 
     private boolean checkForWinner() {
-        GameAction.checkedFlagReset(this);
         if(GameAction.checkWinPlayer(1, this)) {
             winner = getPlayer1();
         }
@@ -112,7 +111,7 @@ public class Game implements Runnable, Serializable {
             setGameOver(true);
             winner.win();
             getOtherPlayer(winner).lose(this);
-            gameListener.onWin(winner);
+            if (gameListener != null) gameListener.onWin(winner);
         }
 
         return isGameOver();
