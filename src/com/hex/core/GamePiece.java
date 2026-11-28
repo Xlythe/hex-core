@@ -1,7 +1,6 @@
 package com.hex.core;
 
 import java.io.Serializable;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,18 +84,18 @@ public class GamePiece implements Serializable {
     private static List<Point> shortestChain(byte team, GamePiece[][] board, Point start) {
         int size = board.length;
         byte[][] parent = new byte[size][size]; // 0 = unseen, 1 = source, 2..7 = incoming direction
-        ArrayDeque<Point> queue = new ArrayDeque<Point>();
+        List<Point> queue = new ArrayList<Point>();
         if (team != 1 && team != 2) return Collections.emptyList();
         for (int i = 0; i < (start == null ? size : 1); i++) {
             int x = start == null ? (team == 1 ? size - 1 : i) : start.x;
             int y = start == null ? (team == 2 ? size - 1 : i) : start.y;
             if (x >= 0 && x < size && y >= 0 && y < size && board[x][y].getTeam() == team) {
                 parent[x][y] = 1;
-                queue.addLast(new Point(x, y));
+                queue.add(new Point(x, y));
             }
         }
-        while (!queue.isEmpty()) {
-            Point cell = queue.removeFirst();
+        for (int next = 0; next < queue.size(); next++) {
+            Point cell = queue.get(next);
             if (checkSpot(team, cell.x, cell.y)) {
                 List<Point> path = new ArrayList<Point>();
                 path.add(cell);
@@ -113,7 +112,7 @@ public class GamePiece implements Serializable {
                 if (x >= 0 && x < size && y >= 0 && y < size
                         && parent[x][y] == 0 && board[x][y].getTeam() == team) {
                     parent[x][y] = (byte) (d + 2);
-                    queue.addLast(new Point(x, y));
+                    queue.add(new Point(x, y));
                 }
             }
         }
@@ -177,7 +176,7 @@ public class GamePiece implements Serializable {
 
     public static void colorPath(int x, int y, String path, Game game) {
         if(path != null) game.gamePieces[x][y].setWinningPath(true);
-        while(path != null && !path.isEmpty()) {
+        while(path != null && path.length() > 0) {
             switch(posDir.valueOf(path.substring(0, 2))) {
             // ud=y-1 & x+1 dd = y+1 & x-1 uy=y-1 dy=y+1 lx=x-1 rx=x+1
             case lx:
