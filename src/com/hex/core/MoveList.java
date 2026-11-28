@@ -24,7 +24,7 @@ public class MoveList implements Serializable {
      * @return returns the last move
      */
     public Move getMove() {
-        return moveList.peekLast();
+        return moveList.isEmpty() ? null : moveList.getLast();
     }
 
     /**
